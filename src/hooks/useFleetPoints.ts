@@ -1,16 +1,30 @@
-import { useEffect } from 'react';
-import useSWR from 'swr';
-import { pb } from '../lib/pocketbase';
-import type { Point } from '../types/fleet';
+import { useEffect } from "react";
+import useSWR from "swr";
+import { pb } from "../lib/pocketbase";
+import type { Point } from "../types/fleet";
+import { useFleetStore } from "../store/fleetStore";
+import { format } from "date-fns";
 
-export function useFleetPoints(trackerId: string | null) {
+export function useFleetPoints() {
+  const {
+    selectedFleetId: trackerId,
+    setSelectedFleetId,
+    dateRange,
+  } = useFleetStore();
+
   const { data, error, isLoading, mutate } = useSWR<Point[]>(
-    trackerId ? `points-${trackerId}` : null,
+    dateRange.start && trackerId
+      ? `points-${trackerId}&${dateRange.start}`
+      : null,
     async () => {
       if (!trackerId) return [];
-      const records = await pb.collection('points').getFullList<Point>({
-        filter: `tracker_id = "${trackerId}"`,
-        sort: '-created',
+      const records = await pb.collection("points").getFullList<Point>({
+        filter: `tracker_id = "${trackerId}" && created >= "${format(
+          // @ts-ignore
+          new Date(dateRange.start),
+          "yyyy-MM-dd"
+        )}" `,
+        sort: "-created",
       });
       return records;
     },
@@ -19,21 +33,6 @@ export function useFleetPoints(trackerId: string | null) {
       revalidateOnFocus: true,
     }
   );
-
-  useEffect(() => {
-    if (!trackerId) return;
-
-    const subscription = pb.collection('points').subscribe(`tracker_id="${trackerId}"`, (data) => {
-      mutate((prev) => {
-        if (!prev) return [data.record];
-        return [data.record, ...prev];
-      }, false);
-    });
-
-    return () => {
-      pb.collection('points').unsubscribe();
-    };
-  }, [trackerId, mutate]);
 
   return {
     points: data || [],

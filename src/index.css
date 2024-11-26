@@ -25,7 +25,7 @@
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.75rem;
   }
- 
+
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
@@ -68,7 +68,7 @@
   }
 
   .premium-card::before {
-    content: '';
+    content: "";
     @apply absolute inset-0 bg-gradient-to-br from-white/10 to-transparent 
            dark:from-white/5 pointer-events-none opacity-0 transition-opacity duration-300;
   }
@@ -78,7 +78,7 @@
   }
 
   .premium-card::after {
-    content: '';
+    content: "";
     @apply absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5
            dark:from-primary/10 dark:to-primary/10 opacity-0 transition-opacity duration-300;
   }
@@ -96,7 +96,7 @@
   }
 
   .premium-button::after {
-    content: '';
+    content: "";
     @apply absolute inset-0 rounded-xl bg-gradient-to-r from-transparent 
            via-white/20 to-transparent -translate-x-full;
     transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
@@ -179,7 +179,8 @@
       transform: scale(0.8);
       opacity: 0.5;
     }
-    80%, 100% {
+    80%,
+    100% {
       transform: scale(2);
       opacity: 0;
     }
@@ -196,7 +197,7 @@
 
   .shimmer::after {
     @apply absolute inset-0;
-    content: '';
+    content: "";
     transform: translateX(-100%);
     background: linear-gradient(
       90deg,
