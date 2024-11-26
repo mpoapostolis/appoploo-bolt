@@ -1,0 +1,50 @@
+{
+  "name": "vessel-tracking-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@headlessui/react": "^1.7.18",
+    "@mapbox/mapbox-gl-draw": "^1.4.3",
+    "@stripe/stripe-js": "^3.0.7",
+    "clsx": "^2.1.0",
+    "date-fns": "^3.3.1",
+    "framer-motion": "^11.0.8",
+    "lucide-react": "^0.344.0",
+    "mapbox-gl": "^3.1.2",
+    "next-auth": "^4.24.6",
+    "pocketbase": "^0.21.1",
+    "react": "^18.3.1",
+    "react-datepicker": "^6.1.0",
+    "react-dom": "^18.3.1",
+    "react-hot-toast": "^2.4.1",
+    "react-map-gl": "^7.1.7",
+    "react-router-dom": "^6.22.1",
+    "react-window": "^1.8.10",
+    "swr": "^2.2.5",
+    "tailwind-merge": "^2.2.1",
+    "zustand": "^4.5.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@types/react-window": "^1.8.8",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.18",
+    "eslint": "^9.9.1",
+    "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+    "eslint-plugin-react-refresh": "^0.4.11",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "terser": "^5.27.2",
+    "typescript": "^5.5.3",
+    "vite": "^5.4.2",
+    "vite-plugin-compression": "^0.5.1"
+  }
+}
