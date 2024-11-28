@@ -82,6 +82,7 @@ export default function VesselMap() {
   const { selectedFleetId, setSelectedFleetId, dateRange } = useFleetStore();
   const { fleets, isLoading } = useFleets();
   const { points, isLoading: isPointsLoading } = useFleetPoints();
+  const isDarkTheme = useFleetStore((state) => state.isDarkMode);
 
   const handleMarkerClick = useCallback(
     (fleet: any) => {
@@ -137,8 +138,6 @@ export default function VesselMap() {
       </div>
     );
   }
-
-  const isDarkTheme = useFleetStore((state) => state.isDarkMode);
 
   return (
     <div className="relative w-full h-full">
