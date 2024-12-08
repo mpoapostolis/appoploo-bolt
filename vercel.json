@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/checkout-session",
+      "destination": "https://appoploo.vercel.app/api/checkout-session"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
