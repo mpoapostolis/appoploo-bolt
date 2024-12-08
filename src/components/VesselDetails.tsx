@@ -294,7 +294,7 @@ export default function VesselDetails() {
                                       ? "border-blue-500/30 dark:border-blue-400/30"
                                       : ""
                                   }`}
-                      onClick={() => console.log(plan.id)}
+                      onClick={() => handleRenewSubscription()}
                     >
                       {plan.featured && (
                         <div className="absolute top-0 right-0">
