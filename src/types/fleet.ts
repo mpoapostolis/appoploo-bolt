@@ -14,7 +14,7 @@ export interface Fleet {
   members: number;
   created: string;
   updated: string;
-  subscriptionEnd?: string;
+  subscriptionEnds?: string;
   position: string;
   currentPlan: string;
   subscriptionStatus: string;

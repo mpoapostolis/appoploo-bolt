@@ -7,6 +7,7 @@ export default defineConfig({
       proxy: {
         '/api/checkout-session': {
           target: 'https://appoploo.vercel.app',
+          // target: 'http://localhost:3000',
           changeOrigin: true,
           secure: true
         }
