@@ -8,6 +8,7 @@ import {
   CreditCard,
   X,
   AlertTriangle,
+  Loader2,
 } from "lucide-react";
 import { formatDistanceToNow, differenceInMinutes } from "date-fns";
 import { useFleetStore } from "../store/fleetStore";
@@ -15,6 +16,9 @@ import { useFleets } from "../hooks/useFleets";
 import toast from "react-hot-toast";
 import { loadStripe } from "@stripe/stripe-js";
 import { useState } from "react";
+import Map, { Marker, NavigationControl } from 'react-map-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import { VesselSelectionModal } from "./VesselSelectionModal";
 
 const SUBSCRIPTION_PLANS = [
   {
@@ -39,6 +43,8 @@ const SUBSCRIPTION_PLANS = [
 const stripePromise = loadStripe(
   "pk_test_51IOqNtHsw5wcdFbBgddIAIJIkUDc5z9MbSFSv9b4jDOzX2XVWRrUzkYncHjWUPghObLa3zKgq9uTsNPxKDrz4Tmu00CcHKLgWN"
 );
+
+const MAPBOX_TOKEN = "pk.eyJ1IjoiYXBvc3RvbGlzbXBvc3RhbmlzIiwiYSI6ImNscmFxMXB2ZjBiMGsyam1qbzJvNmJlbWsifQ.N3v6jcUz5sMF8Rg1e4fE3A";
 
 const getUpdateStatus = (lastUpdate: string) => {
   const minutesSinceUpdate = differenceInMinutes(
@@ -73,30 +79,76 @@ const getUpdateStatus = (lastUpdate: string) => {
   };
 };
 
+const getMarkerColor = (fleet: any) => {
+  const batteryVoltage = +(fleet.battery / 1000).toFixed(1);
+  if (batteryVoltage > 12) {
+    return "bg-emerald-500 dark:bg-emerald-400";
+  }
+  if (batteryVoltage > 11) {
+    return "bg-amber-500 dark:bg-amber-400";
+  }
+  return "bg-red-500 dark:bg-red-400";
+};
+
+const getIconColor = (fleet: any) => {
+  const batteryVoltage = +(fleet.battery / 1000).toFixed(1);
+  if (batteryVoltage > 12) {
+    return "text-emerald-500 dark:text-emerald-400";
+  }
+  if (batteryVoltage > 11) {
+    return "text-amber-500 dark:text-amber-400";
+  }
+  return "text-red-500 dark:text-red-400";
+};
+
 export default function VesselDetails() {
   const { selectedFleetId, setSelectedFleetId } = useFleetStore();
   const { fleets } = useFleets();
   const fleet = fleets?.find((v) => v.id === selectedFleetId);
   const [showPlans, setShowPlans] = useState(false);
+  const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<typeof SUBSCRIPTION_PLANS[0] | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   if (!fleet) return null;
 
   const batteryVoltage = +(fleet.battery / 1000).toFixed(1);
   const updateStatus = getUpdateStatus(fleet.updated);
 
-  const handleRenewSubscription = async () => {
+  const handleRenewSubscription = async (plan: typeof SUBSCRIPTION_PLANS[0]) => {
+    setLoadingPlanId(plan.id);
     try {
       const stripe = await stripePromise;
       if (!stripe) throw new Error("Stripe failed to load");
 
-      const session = { id: "cs_test_123" };
-      const result = await stripe.redirectToCheckout({ sessionId: session.id });
+      const response = await fetch('/api/checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          planId: plan.id,
+          vesselId: fleet.id,
+          vesselName: fleet.name,
+          amount: plan.price * 100,
+          interval: plan.interval
+        }),
+      });
 
-      if (result.error) {
-        toast.error(result.error.message || "Failed to process payment");
+      const session = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(session.message || 'Failed to create checkout session');
       }
-    } catch (error) {
-      toast.error("Failed to initiate checkout");
+
+      const { error } = await stripe.redirectToCheckout({ sessionId: session.id });
+      
+      if (error) {
+        toast.error(error.message || "Payment failed");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to initiate checkout");
+      console.error('Checkout error:', error);
+    } finally {
+      setLoadingPlanId(null);
     }
   };
 
@@ -215,34 +267,70 @@ export default function VesselDetails() {
             {/* Location Card */}
             <motion.div
               whileHover={{ scale: 1.02 }}
-              className="premium-card p-4"
+              className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 
+                        p-4 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-gray-900/50
+                        border border-gray-200/50 dark:border-gray-700/50"
             >
-              <div className="flex items-center space-x-3 mb-3">
-                <div className="p-2 rounded-lg bg-violet-500/10 dark:bg-violet-500/20">
-                  <MapPin className="h-4 w-4 text-violet-500 dark:text-violet-400" />
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 rounded-lg bg-gradient-to-br from-violet-500/20 to-purple-500/20">
+                    <MapPin className="h-4 w-4 text-violet-500 dark:text-violet-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                      Last Known Location
+                    </h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                      {formatDistanceToNow(new Date(fleet.updated), { addSuffix: true })}
+                    </p>
+                  </div>
                 </div>
-                <div className="text-sm font-medium text-gray-900 dark:text-white">
-                  {fleet.position}
+                <div className={`px-2 py-1 rounded-full text-xs font-medium 
+                              ${updateStatus.color} ${updateStatus.bgColor}`}>
+                  {updateStatus.text}
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <div className="text-gray-500 dark:text-gray-400 text-xs">
+
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                     Latitude
                   </div>
                   <div className="font-medium text-gray-900 dark:text-white">
-                    {fleet.lat.toFixed(4)}°
+                    {fleet.lat.toFixed(4)}°N
                   </div>
                 </div>
-                <div>
-                  <div className="text-gray-500 dark:text-gray-400 text-xs">
+                <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                     Longitude
                   </div>
                   <div className="font-medium text-gray-900 dark:text-white">
-                    {fleet.lng.toFixed(4)}°
+                    {fleet.lng.toFixed(4)}°E
                   </div>
                 </div>
               </div>
+
+              <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg">
+                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                  Address
+                </div>
+                <div className="font-medium text-gray-900 dark:text-white">
+                  {fleet.position || 'Location not available'}
+                </div>
+              </div>
+
+                  <a
+                    href={`https://www.google.com/maps?q=${fleet.lat},${fleet.lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-2 py-1 text-xs font-medium text-white bg-black/50 
+                             backdrop-blur-sm rounded-full hover:bg-black/70 
+                             transition-colors duration-200 flex items-center space-x-1"
+                  >
+                    <MapPin className="h-3 w-3" />
+                    <span>View in Maps</span>
+                  </a>
+                
             </motion.div>
 
             {/* Status Badge */}
@@ -264,78 +352,8 @@ export default function VesselDetails() {
             </motion.div>
 
             {/* Subscription Button */}
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => {
-                setShowPlans((prev) => !prev);
-              }}
-              className="premium-button w-full py-2.5"
-            >
-              <CreditCard className="h-4 w-4" />
-              <span>Add More Time</span>
-            </motion.button>
-            <AnimatePresence>
-              {showPlans && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="mt-4 space-y-3"
-                >
-                  {SUBSCRIPTION_PLANS.map((plan) => (
-                    <motion.div
-                      key={plan.id}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className={`premium-card p-4 py-8 cursor-pointer relative overflow-hidden
-                                  ${
-                                    plan.featured
-                                      ? "border-blue-500/30 dark:border-blue-400/30"
-                                      : ""
-                                  }`}
-                      onClick={() => handleRenewSubscription()}
-                    >
-                      {plan.featured && (
-                        <div className="absolute top-0 right-0">
-                          <div
-                            className="bg-gradient-to-r from-blue-500 to-indigo-500 
-                                        text-white text-xs px-3 py-1 rounded-bl-lg font-medium"
-                          >
-                            Best Value
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-medium text-gray-900 dark:text-white">
-                            {plan.name}
-                          </h3>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {plan.description}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <div
-                            className="text-lg font-bold bg-clip-text text-transparent 
-                                        bg-gradient-to-r from-blue-600 to-indigo-600
-                                        dark:from-blue-400 dark:to-indigo-400"
-                          >
-                            €{plan.price}
-                          </div>
-                          {plan.pricePerMonth && (
-                            <div className="text-sm text-gray-500 dark:text-gray-400">
-                              €{plan.pricePerMonth}/mo
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            
+            
           </div>
         </motion.div>
       )}

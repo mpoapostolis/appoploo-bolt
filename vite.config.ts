@@ -3,6 +3,15 @@ import react from "@vitejs/plugin-react";
 import viteCompression from "vite-plugin-compression";
 
 export default defineConfig({
+    server: {
+      proxy: {
+        '/api/checkout-session': {
+          target: 'https://appoploo.vercel.app',
+          changeOrigin: true,
+          secure: true
+        }
+      }
+    },
   plugins: [
     react(),
     viteCompression({

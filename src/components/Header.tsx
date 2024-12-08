@@ -12,7 +12,7 @@ export default function Header() {
     try {
       pb.authStore.clear();
       localStorage.removeItem('appoploo-auth');
-      window.location.href = '/'; // This will trigger a page reload and redirect to login
+      window.location.href = '/';
       toast.success('Logged out successfully');
     } catch (error) {
       toast.error('Failed to logout');

@@ -1,13 +1,14 @@
-import { useRef, useCallback, memo, useEffect } from "react";
+import { useRef, useCallback, memo, useEffect, useState } from "react";
 import Map, { NavigationControl, Marker, Source, Layer } from "react-map-gl";
 import mapboxgl from "mapbox-gl";
 import { motion } from "framer-motion";
-import { Navigation, Maximize2 } from "lucide-react";
+import { Navigation, Maximize2, Anchor } from "lucide-react";
 import { useFleetStore } from "../store/fleetStore";
 import { useFleets } from "../hooks/useFleets";
 import { differenceInMinutes } from "date-fns";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useFleetPoints } from "../hooks/useFleetPoints";
+import { AddTimeModal } from "./AddTimeModal";
 
 const MAPBOX_TOKEN =
   "pk.eyJ1IjoibXBvYXBvc3RvbGlzIiwiYSI6ImNraWNhYjlvMjBpN3MycXBlN3Y1dTRuencifQ.n6ohBfLI_yGS7kjg92XMow";
@@ -83,6 +84,7 @@ export default function VesselMap() {
   const { fleets, isLoading } = useFleets();
   const { points, isLoading: isPointsLoading } = useFleetPoints();
   const isDarkTheme = useFleetStore((state) => state.isDarkMode);
+  const [isAddTimeModalOpen, setIsAddTimeModalOpen] = useState(false);
 
   const handleMarkerClick = useCallback(
     (fleet: any) => {
@@ -145,42 +147,68 @@ export default function VesselMap() {
         ref={mapRef}
         mapboxAccessToken={MAPBOX_TOKEN}
         initialViewState={{
-          latitude: 37.9838,
           longitude: 23.7275,
-          zoom: 6,
+          latitude: 37.9838,
+          zoom: 7,
         }}
-        style={{ width: "100%", height: "100%" }}
         mapStyle={
           isDarkTheme
-            ? "mapbox://styles/mapbox/navigation-night-v1"
+            ? "mapbox://styles/mapbox/dark-v11"
             : "mapbox://styles/mapbox/streets-v12"
         }
       >
-        <NavigationControl position="bottom-left" />
+        <NavigationControl position="bottom-right" />
+        
+        {/* Manage Plans Button */}
+        <div className="absolute top-4 right-4 z-10">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setIsAddTimeModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-br from-indigo-600 to-blue-600 
+                     text-white rounded-xl font-medium transition-all duration-300 
+                     shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/40 relative 
+                     overflow-hidden group backdrop-blur-sm border border-white/20"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent 
+                        -translate-x-full group-hover:translate-x-full transition-transform 
+                        duration-500 ease-out" />
+            <div className="p-1 bg-white/20 rounded-lg">
+              <Anchor className="h-4 w-4 text-white" />
+            </div>
+            <span className="text-sm text-white font-medium">Manage Plans</span>
+            <div className="hidden sm:flex items-center gap-1.5 pl-2 ml-2 border-l border-white/30">
+              <span className="text-xs font-normal text-indigo-100">Active Plans</span>
+              <span className="px-1.5 py-0.5 bg-indigo-500/30 rounded-full text-xs font-medium text-white">
+                {fleets.filter(f => f.subscriptionStatus === 'active').length}
+              </span>
+            </div>
+          </motion.button>
+        </div>
 
         {/* Show all fleets button */}
         <div className="absolute top-4 left-4">
           <motion.button
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleShowAllFleets}
-            className="px-4 py-2 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-lg shadow-lg 
-                     border border-gray-200/50 dark:border-gray-700/50 text-sm font-medium
-                     text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-800
-                     transition-all duration-200 flex items-center space-x-2"
+            className="p-2.5 bg-gradient-to-br from-indigo-600 to-blue-600 rounded-xl 
+                     shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/40 
+                     text-white transition-all duration-300 backdrop-blur-sm 
+                     border border-white/20"
           >
-            <Maximize2 className="h-4 w-4" />
-            <span>Show All Fleets</span>
+            <Maximize2 className="h-5 w-5" />
           </motion.button>
         </div>
 
         {/* Fleet markers */}
-        {fleets?.map((fleet) => (
+        {fleets.map((fleet) => (
           <FleetMarker
             key={fleet.id}
             fleet={fleet}
             isSelected={selectedFleetId === fleet.id}
             onClick={() => handleMarkerClick(fleet)}
+            isLoading={isLoading}
           />
         ))}
 
@@ -213,14 +241,19 @@ export default function VesselMap() {
               id="route"
               type="line"
               paint={{
-                "line-color": "#3b82f6",
-                "line-width": 3,
+                "line-color": isDarkTheme ? "#3b82f6" : "#2563eb",
+                "line-width": 2,
                 "line-opacity": 0.8,
               }}
             />
           </Source>
         )}
       </Map>
+
+      <AddTimeModal 
+        isOpen={isAddTimeModalOpen}
+        onClose={() => setIsAddTimeModalOpen(false)}
+      />
     </div>
   );
 }

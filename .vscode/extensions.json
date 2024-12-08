@@ -1,0 +1,17 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "ms-vscode.vscode-typescript-next",
+    "dsznajder.es7-react-js-snippets",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense",
+    "streetsidesoftware.code-spell-checker",
+    "naumovs.color-highlight",
+    "PKief.material-icon-theme",
+    "mikestead.dotenv",
+    "csstools.postcss",
+    "VisualStudioExptTeam.vscodeintellicode"
+  ]
+}
