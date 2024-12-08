@@ -20,23 +20,14 @@ const SUBSCRIPTION_PLANS = [
     description: "Monthly subscription",
     basePrice: 10,
     duration: "1 month",
-    discount: 0,
   },
   {
     id: "yearly",
     name: "12 Months",
-    description: "Save €20 per vessel",
+    description: "Yearly subscription",
     basePrice: 100,
     duration: "12 months",
-    discount: 0,
   },
-];
-
-// Volume discount tiers
-const VOLUME_DISCOUNTS = [
-  { min: 5, discount: 10 }, // 10% off for 5+ vessels
-  { min: 10, discount: 15 }, // 15% off for 10+ vessels
-  { min: 20, discount: 20 }, // 20% off for 20+ vessels
 ];
 
 interface AddTimeModalProps {
@@ -53,30 +44,14 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
 
   const currentPlan = SUBSCRIPTION_PLANS.find((p) => p.id === selectedPlan);
   
-  // Calculate volume discount
-  const volumeDiscount = useMemo(() => {
-    const count = selectedTrackers.length;
-    const tier = VOLUME_DISCOUNTS
-      .slice()
-      .reverse()
-      .find(t => count >= t.min);
-    return tier?.discount || 0;
-  }, [selectedTrackers.length]);
-
-  // Calculate total amount with discounts
+  // Calculate total amount
   const calculateTotal = useMemo(() => {
-    if (!currentPlan || selectedTrackers.length === 0) return { subtotal: 0, discount: 0, total: 0 };
+    if (!currentPlan || selectedTrackers.length === 0) return { total: 0 };
 
-    const subtotal = currentPlan.basePrice * selectedTrackers.length;
-    const discountAmount = (subtotal * volumeDiscount) / 100;
-    const total = subtotal - discountAmount;
+    const total = currentPlan.basePrice * selectedTrackers.length;
 
-    return {
-      subtotal,
-      discount: discountAmount,
-      total,
-    };
-  }, [currentPlan, selectedTrackers.length, volumeDiscount]);
+    return { total };
+  }, [currentPlan, selectedTrackers.length]);
 
   const handleRenewSubscription = async () => {
     if (!currentPlan || selectedTrackers.length === 0) return;
@@ -315,28 +290,10 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
                         </div>
                         <div className="space-y-2">
                           <div className="flex justify-between text-sm">
-                            <span className="text-gray-500 dark:text-gray-400">Subtotal</span>
+                            <span className="text-gray-500 dark:text-gray-400">Total</span>
                             <span className="font-medium text-gray-900 dark:text-white">
-                              €{calculateTotal.subtotal}
+                              €{calculateTotal.total}
                             </span>
-                          </div>
-                          {calculateTotal.discount > 0 && (
-                            <div className="flex justify-between text-sm">
-                              <span className="text-gray-500 dark:text-gray-400">
-                                Volume Discount ({volumeDiscount}%)
-                              </span>
-                              <span className="font-medium text-emerald-600 dark:text-emerald-400">
-                                -€{calculateTotal.discount}
-                              </span>
-                            </div>
-                          )}
-                          <div className="pt-2 mt-2 border-t border-gray-200 dark:border-gray-700">
-                            <div className="flex justify-between">
-                              <span className="font-medium text-gray-900 dark:text-white">Total</span>
-                              <span className="font-medium text-gray-900 dark:text-white">
-                                €{calculateTotal.total}
-                              </span>
-                            </div>
                           </div>
                         </div>
                       </div>
