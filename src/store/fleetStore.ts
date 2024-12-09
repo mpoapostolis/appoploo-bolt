@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import type { Fleet, Point } from '../types/fleet';
+import { create } from "zustand";
+import type { Fleet, Point } from "../types/fleet";
 
 interface FleetState {
   fleets: Fleet[];
@@ -25,14 +25,15 @@ export const useFleetStore = create<FleetState>((set) => ({
   selectedFleetId: null,
   isDarkMode: false,
   isSidebarOpen: window.innerWidth >= 768, // Open by default on desktop
-  sortKey: 'updated',
+  sortKey: "updated",
   dateRange: {
     start: null,
-    end: null
+    end: null,
   },
   setSelectedFleetId: (id) => set({ selectedFleetId: id }),
   toggleDarkMode: () => set((state) => ({ isDarkMode: !state.isDarkMode })),
-  toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
+  toggleSidebar: () =>
+    set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
   setSortKey: (key) => set({ sortKey: key }),
-  setDateRange: (start, end) => set({ dateRange: { start, end } })
+  setDateRange: (start, end) => set({ dateRange: { start, end } }),
 }));
