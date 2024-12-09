@@ -55,7 +55,8 @@ const getUpdateStatus = (lastUpdate: string) => {
 
   if (minutesSinceUpdate >= 30) {
     return {
-      text: "No Signal",
+      type: 'error',
+      message: "No Signal",
       color: "text-red-500 dark:text-red-400",
       bgColor: "bg-red-500/10 dark:bg-red-500/20",
       icon: <AlertTriangle className="h-4 w-4" />,
@@ -64,7 +65,8 @@ const getUpdateStatus = (lastUpdate: string) => {
   }
   if (minutesSinceUpdate >= 15) {
     return {
-      text: "Warning",
+      type: 'warning',
+      message: "Warning",
       color: "text-amber-500 dark:text-amber-400",
       bgColor: "bg-amber-500/10 dark:bg-amber-500/20",
       icon: <AlertTriangle className="h-4 w-4" />,
@@ -72,7 +74,8 @@ const getUpdateStatus = (lastUpdate: string) => {
     };
   }
   return {
-    text: "Active",
+    type: 'success',
+    message: "Active",
     color: "text-emerald-500 dark:text-emerald-400",
     bgColor: "bg-emerald-500/10 dark:bg-emerald-500/20",
     icon: null,
@@ -165,25 +168,25 @@ export default function VesselDetails() {
                    border-gray-200/50 dark:border-gray-700/50 z-50"
         >
           {/* Compact Header */}
-          <div className="relative p-4 premium-gradient border-b border-gray-200/50 dark:border-gray-700/50">
+          <div className="relative p-3 premium-gradient border-b border-gray-200/50 dark:border-gray-700/50">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setSelectedFleetId(null)}
-              className="absolute right-4 top-4 p-1.5 rounded-lg bg-white/10 dark:bg-gray-800/10 
+              className="absolute right-3 top-3 p-1 rounded-lg bg-white/10 dark:bg-gray-800/10 
                        backdrop-blur-lg hover:bg-white/20 dark:hover:bg-gray-800/20 
                        text-gray-700 dark:text-gray-300 transition-all duration-200"
             >
               <X className="h-4 w-4" />
             </motion.button>
 
-            <div className="flex items-start space-x-3">
+            <div className="flex items-start space-x-2">
               <motion.div
                 whileHover={{ scale: 1.05 }}
-                className="p-2.5 bg-white/10 dark:bg-white/5 backdrop-blur-lg rounded-xl
+                className="p-2 bg-white/10 dark:bg-white/5 backdrop-blur-lg rounded-lg
                          border border-white/10 dark:border-white/5"
               >
-                <Ship className="h-6 w-6 text-primary" />
+                <Ship className="h-5 w-5 text-primary" />
               </motion.div>
               <div>
                 <EditableVesselName 
@@ -191,8 +194,8 @@ export default function VesselDetails() {
                   vesselId={fleet.id} 
                   className="text-lg font-bold text-gray-900 dark:text-white"
                 />
-                <div className="flex items-center space-x-2 mt-1">
-                  <Clock className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400" />
+                <div className="flex items-center space-x-1.5 mt-1">
+                  <Clock className="h-3 w-3 text-gray-500 dark:text-gray-400" />
                   <span className="text-xs text-gray-500 dark:text-gray-400">
                     {formatDistanceToNow(new Date(fleet.updated), {
                       addSuffix: true,
@@ -204,65 +207,189 @@ export default function VesselDetails() {
           </div>
 
           {/* Content */}
-          <div className="p-4 space-y-4">
-            {/* Status Cards */}
-            <div className="grid grid-cols-2 gap-3">
+          <div className="p-3 space-y-2">
+            {/* Quick Stats */}
+            <div className="space-y-2">
               <motion.div
                 whileHover={{ scale: 1.02 }}
-                className="premium-card p-3 text-center"
+                className={`premium-card relative overflow-hidden p-3 ${
+                  batteryVoltage > 12
+                    ? "bg-emerald-500/5 dark:bg-emerald-500/10"
+                    : batteryVoltage > 11
+                    ? "bg-amber-500/5 dark:bg-amber-500/10"
+                    : "bg-red-500/5 dark:bg-red-500/10"
+                }`}
               >
-                <Battery
-                  className={`h-5 w-5 mx-auto mb-1 ${
-                    batteryVoltage > 12
-                      ? "text-emerald-500 dark:text-emerald-400"
-                      : batteryVoltage > 11
-                      ? "text-amber-500 dark:text-amber-400"
-                      : "text-red-500 dark:text-red-400"
+                <div className={`absolute top-0 left-0 w-full h-0.5
+                  ${batteryVoltage > 12
+                    ? "bg-emerald-500/20 dark:bg-emerald-400/20"
+                    : batteryVoltage > 11
+                    ? "bg-amber-500/20 dark:bg-amber-400/20"
+                    : "bg-red-500/20 dark:bg-red-400/20"
                   }`}
-                />
-                <div className="text-lg font-bold text-gray-900 dark:text-white">
-                  {batteryVoltage}V
-                </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                  Battery
-                </div>
-                <div className="h-1 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                >
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${((batteryVoltage - 10) * 100) / 4}%` }}
                     transition={{ duration: 1, ease: "easeOut" }}
-                    className={`h-full rounded-full ${
-                      batteryVoltage > 12
+                    className={`h-full
+                      ${batteryVoltage > 12
                         ? "bg-emerald-500 dark:bg-emerald-400"
                         : batteryVoltage > 11
                         ? "bg-amber-500 dark:bg-amber-400"
                         : "bg-red-500 dark:bg-red-400"
-                    }`}
+                      }`}
                   />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className={`inline-flex items-center justify-center w-10 h-10 rounded-lg
+                      ${batteryVoltage > 12
+                        ? "bg-emerald-500/10 dark:bg-emerald-400/10"
+                        : batteryVoltage > 11
+                        ? "bg-amber-500/10 dark:bg-amber-400/10"
+                        : "bg-red-500/10 dark:bg-red-400/10"
+                      }`}
+                    >
+                      <Battery
+                        className={`h-5 w-5 ${
+                          batteryVoltage > 12
+                            ? "text-emerald-500 dark:text-emerald-400"
+                            : batteryVoltage > 11
+                            ? "text-amber-500 dark:text-amber-400"
+                            : "text-red-500 dark:text-red-400"
+                        }`}
+                      />
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        Battery
+                      </div>
+                      <div className="text-lg font-bold text-gray-900 dark:text-white">
+                        {batteryVoltage}V
+                      </div>
+                      <div className={`text-xs font-medium ${
+                        batteryVoltage > 12
+                          ? "text-emerald-500 dark:text-emerald-400"
+                          : batteryVoltage > 11
+                          ? "text-amber-500 dark:text-amber-400"
+                          : "text-red-500 dark:text-red-400"
+                      }`}>
+                        {batteryVoltage > 12 ? 'Good' : batteryVoltage > 11 ? 'Warning' : 'Critical'}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
 
               <motion.div
                 whileHover={{ scale: 1.02 }}
-                className="premium-card p-3 text-center"
+                className="premium-card relative overflow-hidden p-3 bg-blue-500/5 dark:bg-blue-500/10"
               >
-                <Navigation
-                  className="h-5 w-5 mx-auto mb-1 text-blue-500 dark:text-blue-400"
-                  style={{ transform: `rotate(${fleet.course}deg)` }}
-                />
-                <div className="text-lg font-bold text-gray-900 dark:text-white">
-                  {fleet.speed.toFixed(1)}
-                </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                  Knots
-                </div>
-                <div className="h-1 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-0.5 bg-blue-500/20 dark:bg-blue-400/20">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${(fleet.speed / 20) * 100}%` }}
                     transition={{ duration: 1, ease: "easeOut" }}
-                    className="h-full rounded-full bg-blue-500 dark:bg-blue-400"
+                    className="h-full bg-blue-500 dark:bg-blue-400"
                   />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-blue-500/10 dark:bg-blue-400/10">
+                      <Navigation
+                        className="h-5 w-5 text-blue-500 dark:text-blue-400"
+                        style={{ transform: `rotate(${fleet.course}deg)` }}
+                      />
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        Speed
+                      </div>
+                      <div className="text-lg font-bold text-gray-900 dark:text-white">
+                        {fleet.speed.toFixed(1)} kts
+                      </div>
+                      <div className="text-xs font-medium text-blue-500 dark:text-blue-400">
+                        Course: {fleet.course}°
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                className={`premium-card relative overflow-hidden p-3 ${
+                  getUpdateStatus(fleet.updated).type === 'success'
+                    ? 'bg-emerald-500/5 dark:bg-emerald-500/10'
+                    : getUpdateStatus(fleet.updated).type === 'warning'
+                    ? 'bg-amber-500/5 dark:bg-amber-500/10'
+                    : 'bg-red-500/5 dark:bg-red-500/10'
+                }`}
+              >
+                <div className={`absolute top-0 left-0 w-full h-0.5 ${
+                  getUpdateStatus(fleet.updated).type === 'success'
+                    ? 'bg-emerald-500/20 dark:bg-emerald-400/20'
+                    : getUpdateStatus(fleet.updated).type === 'warning'
+                    ? 'bg-amber-500/20 dark:bg-amber-400/20'
+                    : 'bg-red-500/20 dark:bg-red-400/20'
+                }`}>
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: '100%' }}
+                    transition={{
+                      duration: 1,
+                      ease: "easeOut",
+                      repeat: Infinity,
+                      repeatType: "reverse"
+                    }}
+                    className={`h-full ${
+                      getUpdateStatus(fleet.updated).type === 'success'
+                        ? 'bg-emerald-500 dark:bg-emerald-400'
+                        : getUpdateStatus(fleet.updated).type === 'warning'
+                        ? 'bg-amber-500 dark:bg-amber-400'
+                        : 'bg-red-500 dark:bg-red-400'
+                    }`}
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className={`inline-flex items-center justify-center w-10 h-10 rounded-lg ${
+                      getUpdateStatus(fleet.updated).type === 'success'
+                        ? 'bg-emerald-500/10 dark:bg-emerald-400/10'
+                        : getUpdateStatus(fleet.updated).type === 'warning'
+                        ? 'bg-amber-500/10 dark:bg-amber-400/10'
+                        : 'bg-red-500/10 dark:bg-red-400/10'
+                    }`}>
+                      <div className={`w-2.5 h-2.5 rounded-full animate-pulse ${
+                        getUpdateStatus(fleet.updated).type === 'success'
+                          ? 'bg-emerald-500 dark:bg-emerald-400'
+                          : getUpdateStatus(fleet.updated).type === 'warning'
+                          ? 'bg-amber-500 dark:bg-amber-400'
+                          : 'bg-red-500 dark:bg-red-400'
+                      }`} />
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        Signal
+                      </div>
+                      <div className="text-lg font-bold text-gray-900 dark:text-white">
+                        {getUpdateStatus(fleet.updated).message}
+                      </div>
+                      <div className={`text-xs font-medium ${
+                        getUpdateStatus(fleet.updated).type === 'success'
+                          ? 'text-emerald-500 dark:text-emerald-400'
+                          : getUpdateStatus(fleet.updated).type === 'warning'
+                          ? 'text-amber-500 dark:text-amber-400'
+                          : 'text-red-500 dark:text-red-400'
+                      }`}>
+                        Last update: {formatDistanceToNow(new Date(fleet.updated))} ago
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             </div>
@@ -271,92 +398,128 @@ export default function VesselDetails() {
             <motion.div
               whileHover={{ scale: 1.02 }}
               className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 
-                        p-4 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-gray-900/50
-                        border border-gray-200/50 dark:border-gray-700/50"
+                        rounded-lg shadow-lg shadow-gray-200/50 dark:shadow-gray-900/50
+                        border border-gray-200/50 dark:border-gray-700/50 overflow-hidden"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 rounded-lg bg-gradient-to-br from-violet-500/20 to-purple-500/20">
-                    <MapPin className="h-4 w-4 text-violet-500 dark:text-violet-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-                      Last Known Location
-                    </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                      {formatDistanceToNow(new Date(fleet.updated), { addSuffix: true })}
-                    </p>
+              <div className="p-3">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center space-x-2">
+                    <div className="p-2 rounded-lg bg-gradient-to-br from-violet-500/20 to-purple-500/20">
+                      <MapPin className="h-3.5 w-3.5 text-violet-500 dark:text-violet-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                        Last Known Location
+                      </h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                        {formatDistanceToNow(new Date(fleet.updated), { addSuffix: true })}
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <div className={`px-2 py-1 rounded-full text-xs font-medium 
-                              ${updateStatus.color} ${updateStatus.bgColor}`}>
-                  {updateStatus.text}
-                </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg">
+                <div className="grid grid-cols-2 gap-2 mb-2">
+                  <div className="bg-gray-50 dark:bg-gray-900/50 p-2 rounded-lg">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                      Latitude
+                    </div>
+                    <div className="font-medium text-gray-900 dark:text-white">
+                      {fleet.lat.toFixed(4)}°N
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-gray-900/50 p-2 rounded-lg">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                      Longitude
+                    </div>
+                    <div className="font-medium text-gray-900 dark:text-white">
+                      {fleet.lng.toFixed(4)}°E
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 dark:bg-gray-900/50 p-2 rounded-lg mb-2">
                   <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                    Latitude
+                    Address
                   </div>
                   <div className="font-medium text-gray-900 dark:text-white">
-                    {fleet.lat.toFixed(4)}°N
+                    {fleet.position || 'Location not available'}
                   </div>
                 </div>
-                <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg">
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                    Longitude
-                  </div>
-                  <div className="font-medium text-gray-900 dark:text-white">
-                    {fleet.lng.toFixed(4)}°E
-                  </div>
-                </div>
-              </div>
 
-              <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg">
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                  Address
-                </div>
-                <div className="font-medium text-gray-900 dark:text-white">
-                  {fleet.position || 'Location not available'}
-                </div>
-              </div>
-
+                <div className="flex items-center justify-between">
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    Course: {fleet.course}°
+                  </div>
                   <a
                     href={`https://www.google.com/maps?q=${fleet.lat},${fleet.lng}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-2 py-1 text-xs font-medium text-white bg-black/50 
-                             backdrop-blur-sm rounded-full hover:bg-black/70 
-                             transition-colors duration-200 flex items-center space-x-1"
+                    className="inline-flex items-center px-2 py-1 text-xs font-medium text-white 
+                             bg-violet-500 hover:bg-violet-600 dark:bg-violet-600 dark:hover:bg-violet-700
+                             rounded-lg transition-colors duration-200"
                   >
-                    <MapPin className="h-3 w-3" />
-                    <span>View in Maps</span>
+                    <MapPin className="h-3 w-3 mr-1" />
+                    View in Maps
                   </a>
-                
+                </div>
+              </div>
+
+              <div className="h-36 relative">
+                <Map
+                  initialViewState={{
+                    longitude: fleet.lng,
+                    latitude: fleet.lat,
+                    zoom: 14
+                  }}
+                  style={{ width: '100%', height: '100%' }}
+                  mapStyle="mapbox://styles/mapbox/dark-v11"
+                  mapboxAccessToken={MAPBOX_TOKEN}
+                >
+                  <Marker
+                    longitude={fleet.lng}
+                    latitude={fleet.lat}
+                  >
+                    <div className={`w-3 h-3 rounded-full ${getMarkerColor(fleet)} shadow-lg`} />
+                  </Marker>
+                  <NavigationControl position="bottom-right" />
+                </Map>
+              </div>
             </motion.div>
 
-            {/* Status Badge */}
+            {/* Vessel Info */}
             <motion.div
               whileHover={{ scale: 1.02 }}
-              className={`premium-card p-4 flex items-center justify-between
-                       ${updateStatus.bgColor}`}
+              className="premium-card p-3 space-y-2"
             >
-              <div className="text-sm font-medium text-gray-900 dark:text-white">
-                Status
+              <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                Vessel Information
+              </h3>
+              
+              <div className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700/50">
+                <div className="text-xs text-gray-500 dark:text-gray-400">IMEI</div>
+                <div className="text-xs font-medium text-gray-900 dark:text-white">
+                  {fleet.IMEI}
+                </div>
               </div>
-              <div
-                className={`flex items-center space-x-1.5 px-2 py-1 rounded-full 
-                           text-xs font-medium ${updateStatus.color}`}
-              >
-                {updateStatus.icon}
-                <span>{updateStatus.text}</span>
+
+              <div className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700/50">
+                <div className="text-xs text-gray-500 dark:text-gray-400">Last Update</div>
+                <div className="text-xs font-medium text-gray-900 dark:text-white">
+                  {new Date(fleet.updated).toLocaleString()}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between py-2">
+                <div className="text-xs text-gray-500 dark:text-gray-400">Subscription</div>
+                <div className={`text-xs font-medium ${
+                  fleet.subscriptionStatus === 'active'
+                    ? 'text-emerald-600 dark:text-emerald-400'
+                    : 'text-red-600 dark:text-red-400'
+                }`}>
+                  {fleet.subscriptionStatus === 'active' ? 'Active' : 'Inactive'}
+                </div>
               </div>
             </motion.div>
-
-            {/* Subscription Button */}
-            
-            
           </div>
         </motion.div>
       )}

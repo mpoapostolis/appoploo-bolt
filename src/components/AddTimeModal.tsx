@@ -83,19 +83,22 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
         return {
           border: 'border-red-500/50 dark:border-red-500/30',
           bg: 'bg-red-500/5 dark:bg-red-500/10',
-          text: 'text-red-500 dark:text-red-400'
+          text: 'text-red-600 dark:text-red-400',
+          badge: 'bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20'
         };
       case 'expiring':
         return {
           border: 'border-amber-500/50 dark:border-amber-500/30',
           bg: 'bg-amber-500/5 dark:bg-amber-500/10',
-          text: 'text-amber-500 dark:text-amber-400'
+          text: 'text-amber-500 dark:text-amber-400',
+          badge: 'bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-400/10 dark:text-amber-400 dark:ring-amber-400/20'
         };
       default:
         return {
-          border: 'border-gray-200 dark:border-gray-700',
-          bg: '',
-          text: 'text-gray-500 dark:text-gray-400'
+          border: 'border-emerald-500/50 dark:border-emerald-500/30',
+          bg: 'bg-emerald-500/5 dark:bg-emerald-500/10',
+          text: 'text-emerald-600 dark:text-emerald-400',
+          badge: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20'
         };
     }
   };
@@ -222,7 +225,7 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
                     </h2>
                     <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                       {expiredVesselIds.length > 0 && (
-                        <span className="text-red-500 dark:text-red-400">
+                        <span className="text-red-600 dark:text-red-400 font-medium">
                           {expiredVesselIds.length} vessel{expiredVesselIds.length === 1 ? '' : 's'} expired
                         </span>
                       )}
@@ -230,10 +233,16 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
                         <span className="mx-2">•</span>
                       )}
                       {expiringVesselIds.length > 0 && (
-                        <span className="text-amber-500 dark:text-amber-400">
+                        <span className="text-amber-500 dark:text-amber-400 font-medium">
                           {expiringVesselIds.length} vessel{expiringVesselIds.length === 1 ? '' : 's'} expiring in 30 days
                         </span>
                       )}
+                      {(expiredVesselIds.length > 0 || expiringVesselIds.length > 0) && (
+                        <span className="mx-2">•</span>
+                      )}
+                      <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+                        {fleets.length - (expiredVesselIds.length + expiringVesselIds.length)} active vessel{fleets.length - (expiredVesselIds.length + expiringVesselIds.length) === 1 ? '' : 's'}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -314,42 +323,63 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
                                             : `${styles.border} ${styles.bg}`
                                         }`}
                               >
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                                    <div className="p-2 bg-gray-100/80 dark:bg-gray-800/80 rounded-lg">
+                                <div className="flex items-center justify-between gap-4">
+                                  {/* Left side - Icon */}
+                                  <div className="flex-shrink-0">
+                                    <div className={`p-2.5 rounded-lg ${
+                                      selectedTrackers.includes(fleet.id)
+                                        ? "bg-primary/10 dark:bg-primary/20"
+                                        : "bg-gray-100/80 dark:bg-gray-800/80"
+                                    }`}>
                                       <Ship className={`h-5 w-5 ${isSelectable ? styles.text : 'text-gray-400 dark:text-gray-500'}`} />
                                     </div>
-                                    <div className="flex-1 min-w-0">
+                                  </div>
+
+                                  {/* Middle - Vessel Info */}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
                                       <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">
                                         {fleet.name}
                                       </h3>
-                                      <div className="flex items-center gap-2 mt-0.5">
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                                          IMEI: {fleet.IMEI}
-                                        </p>
-                                        {fleet.subscriptionEnds && (
-                                          <>
-                                            <span className="text-xs text-gray-400">•</span>
-                                            <p className={`text-xs ${styles.text}`}>
-                                              {status === 'expired' ? 'Expired ' : 'Expires '}
-                                              {formatDistanceToNow(new Date(fleet.subscriptionEnds), { addSuffix: true })}
-                                            </p>
-                                          </>
-                                        )}
+                                      <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${styles.badge}`}>
+                                        {status === 'expired' ? 'Expired' : status === 'expiring' ? 'Expiring Soon' : 'Active'}
+                                      </span>
+                                    </div>
+                                    
+                                    <div className="mt-1 flex items-center gap-3 text-xs">
+                                      <div className="flex items-center gap-1.5">
+                                        <Cpu className="h-3.5 w-3.5 text-gray-400" />
+                                        <span className="text-gray-600 dark:text-gray-300">
+                                          {fleet.IMEI}
+                                        </span>
                                       </div>
+                                      
+                                      {fleet.subscriptionEnds && (
+                                        <div className="flex items-center gap-1.5">
+                                          <Clock className="h-3.5 w-3.5 text-gray-400" />
+                                          <span className={styles.text}>
+                                            {status === 'expired' ? 'Expired ' : 'Expires '}
+                                            {formatDistanceToNow(new Date(fleet.subscriptionEnds), { addSuffix: true })}
+                                          </span>
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
+
+                                  {/* Right side - Checkbox */}
                                   {isSelectable && (
-                                    <div className={`w-5 h-5 rounded-md border-2 transition-all
-                                                ${
-                                                  selectedTrackers.includes(fleet.id)
-                                                    ? "bg-primary border-primary text-white"
-                                                    : "border-gray-300 dark:border-gray-600"
-                                                }`}
-                                    >
-                                      {selectedTrackers.includes(fleet.id) && (
-                                        <Check className="h-4 w-4" />
-                                      )}
+                                    <div className="flex-shrink-0">
+                                      <div className={`w-5 h-5 rounded-md border-2 transition-all
+                                                  ${
+                                                    selectedTrackers.includes(fleet.id)
+                                                      ? "bg-primary border-primary text-white"
+                                                      : "border-gray-300 dark:border-gray-600"
+                                                  }`}
+                                      >
+                                        {selectedTrackers.includes(fleet.id) && (
+                                          <Check className="h-4 w-4" />
+                                        )}
+                                      </div>
                                     </div>
                                   )}
                                 </div>
