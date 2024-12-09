@@ -33,7 +33,7 @@ export default function NotificationBell() {
 
       <NotificationModal 
         isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+        setIsOpen={setIsModalOpen}
       />
     </>
   );
