@@ -46,7 +46,7 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
 
   useEffect(() => {
     const now = new Date();
-    const in30Days = addDays(now, 30);
+    const in30Days = addDays(now, 29);
 
     const expiring: string[] = [];
     const expired: string[] = [];
