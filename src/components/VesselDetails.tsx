@@ -414,7 +414,7 @@ export default function VesselDetails() {
 
               <div className="h-36 relative overflow-hidden rounded-lg">
                 <Map
-                  initialViewState={{
+                  viewState={{
                     longitude: fleet.lng,
                     latitude: fleet.lat,
                     zoom: 14
