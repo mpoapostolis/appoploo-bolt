@@ -19,6 +19,7 @@ import { useState } from "react";
 import Map, { Marker, NavigationControl } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { VesselSelectionModal } from "./VesselSelectionModal";
+import { EditableVesselName } from "./EditableVesselName";
 
 const SUBSCRIPTION_PLANS = [
   {
@@ -185,9 +186,11 @@ export default function VesselDetails() {
                 <Ship className="h-6 w-6 text-primary" />
               </motion.div>
               <div>
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                  {fleet.name}
-                </h2>
+                <EditableVesselName 
+                  initialName={fleet.name} 
+                  vesselId={fleet.id} 
+                  className="text-lg font-bold text-gray-900 dark:text-white"
+                />
                 <div className="flex items-center space-x-2 mt-1">
                   <Clock className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400" />
                   <span className="text-xs text-gray-500 dark:text-gray-400">
