@@ -10,7 +10,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { useFleetPoints } from "../hooks/useFleetPoints";
 import { AddTimeModal } from "./AddTimeModal";
 
-const MAPBOX_TOKEN =
+export const MAPBOX_TOKEN =
   "pk.eyJ1IjoibXBvYXBvc3RvbGlzIiwiYSI6ImNraWNhYjlvMjBpN3MycXBlN3Y1dTRuencifQ.n6ohBfLI_yGS7kjg92XMow";
 
 const getMarkerColor = (fleet: any) => {

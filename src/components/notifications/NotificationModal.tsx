@@ -86,7 +86,7 @@ export default function NotificationModal({ isOpen, setIsOpen }: NotificationMod
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/20 backdrop-blur-sm dark:bg-black/40" />
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
@@ -100,82 +100,116 @@ export default function NotificationModal({ isOpen, setIsOpen }: NotificationMod
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white dark:bg-gray-900 shadow-xl transition-all">
+              <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl 
+                                   bg-white/90 dark:bg-gray-800/90 shadow-2xl transition-all
+                                   backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50">
                 {/* Header */}
-                <div className="p-6 border-b border-gray-200 dark:border-gray-800">
-                  <div className="flex items-center justify-between mb-6">
+                <div className="p-6 border-b border-gray-200/50 dark:border-gray-700/50
+                            bg-gradient-to-br from-sky-500/10 to-blue-600/10 
+                            dark:from-sky-500/20 dark:to-blue-600/20">
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="relative bg-blue-100 dark:bg-blue-900/50 p-3 rounded-xl">
-                        <Bell className="h-7 w-7 text-blue-600 dark:text-blue-400" />
+                      <div className="p-3 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl 
+                                  shadow-lg shadow-sky-500/20 border border-white/20">
+                        <Bell className="h-6 w-6 text-white" />
                         {unreadCount > 0 && (
-                          <span className="absolute -top-1 -right-1 h-5 w-5 text-xs bg-red-500 text-white rounded-full flex items-center justify-center font-medium">
+                          <span className="absolute -top-1 -right-1 h-5 w-5 text-xs 
+                                       bg-gradient-to-br from-red-500 to-rose-600
+                                       text-white rounded-full flex items-center justify-center 
+                                       font-medium border border-white/20 shadow-lg">
                             {unreadCount}
                           </span>
                         )}
                       </div>
                       <div>
-                        <Dialog.Title className="text-2xl font-bold text-gray-900 dark:text-white">
+                        <Dialog.Title className="text-xl font-semibold text-gray-900 dark:text-white">
                           Notifications
                         </Dialog.Title>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                           Stay updated with your fleet
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <button
-                        onClick={() => markAllAsRead()}
-                        className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                      >
-                        Mark all as read
-                      </button>
-                      <button
+                    <div className="flex items-center gap-3">
+                      {unreadCount > 0 && (
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => markAllAsRead()}
+                          className="px-4 py-2 text-sm font-medium rounded-lg
+                                 bg-gray-100 dark:bg-gray-700/50 hover:bg-gray-200 
+                                 dark:hover:bg-gray-700 transition-all duration-200
+                                 text-gray-700 dark:text-gray-200 hover:text-sky-600 
+                                 dark:hover:text-sky-400 border border-gray-200/50 
+                                 dark:border-gray-600/50"
+                        >
+                          Mark all as read
+                        </motion.button>
+                      )}
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => setIsOpen(false)}
-                        className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        className="p-2 text-gray-500 dark:text-gray-400 transition-all duration-200 
+                               rounded-lg bg-gray-100 dark:bg-gray-700/50 hover:bg-gray-200 
+                               dark:hover:bg-gray-700 border border-gray-200/50 dark:border-gray-600/50"
                       >
                         <X className="h-5 w-5" />
-                      </button>
+                      </motion.button>
                     </div>
                   </div>
 
                   {/* Search and Filters */}
-                  <div className="space-y-4">
+                  <div className="mt-6 space-y-4">
                     <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 rounded-md
+                                  bg-gray-100 dark:bg-gray-800">
+                        <Search className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                      </div>
                       <input
                         type="text"
                         placeholder="Search notifications..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+                        className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200/50 
+                               dark:border-gray-700/50 bg-white/50 dark:bg-gray-800/50 
+                               text-gray-900 dark:text-white placeholder-gray-500 
+                               dark:placeholder-gray-400 focus:outline-none focus:ring-2 
+                               focus:ring-sky-500/50 dark:focus:ring-sky-400/50
+                               backdrop-blur-sm transition-all"
                       />
                     </div>
                     
                     <div className="flex gap-2">
-                      <button
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                         onClick={() => setSelectedType('all')}
-                        className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                          selectedType === 'all'
-                            ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                        }`}
+                        className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200
+                                ${selectedType === 'all'
+                                  ? 'bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-500/25 border border-white/20'
+                                  : 'bg-gray-100/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700/80 border border-gray-200/50 dark:border-gray-700/50'
+                                }`}
                       >
-                        All
-                      </button>
-                      <button
+                        All Notifications
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                         onClick={() => setSelectedType('unread')}
-                        className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                          selectedType === 'unread'
-                            ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                        }`}
+                        className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200
+                                ${selectedType === 'unread'
+                                  ? 'bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-500/25 border border-white/20'
+                                  : 'bg-gray-100/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700/80 border border-gray-200/50 dark:border-gray-700/50'
+                                }`}
                       >
-                        Unread {unreadCount > 0 && (
-                          <span className="ml-1.5 px-2 py-0.5 rounded-full bg-white/20 text-xs">
+                        Unread 
+                        {unreadCount > 0 && (
+                          <span className="ml-2 px-2 py-0.5 rounded-full bg-white/20 text-xs border border-white/20">
                             {unreadCount}
                           </span>
                         )}
-                      </button>
+                      </motion.button>
                     </div>
                   </div>
                 </div>
@@ -193,29 +227,37 @@ export default function NotificationModal({ isOpen, setIsOpen }: NotificationMod
                         <motion.div 
                           animate={{ rotate: 360 }}
                           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                          className="mx-auto h-8 w-8 rounded-full border-2 border-gray-200 border-t-blue-500"
+                          className="mx-auto h-10 w-10 rounded-full border-2 border-gray-200/50 
+                                 border-t-sky-500 shadow-lg"
                         />
-                        <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Loading notifications...</p>
+                        <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+                          Loading notifications...
+                        </p>
                       </motion.div>
                     ) : filteredNotifications.length === 0 ? (
                       <motion.div 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
-                        className="p-8 text-center"
+                        className="p-12 text-center"
                       >
-                        <Bell className="mx-auto h-12 w-12 text-gray-400" />
-                        <p className="mt-4 text-sm font-medium text-gray-900 dark:text-white">
+                        <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br 
+                                    from-sky-500/10 to-blue-600/10 dark:from-sky-500/20 
+                                    dark:to-blue-600/20 flex items-center justify-center
+                                    border border-sky-500/20 shadow-lg shadow-sky-500/10">
+                          <Bell className="h-8 w-8 text-sky-500 dark:text-sky-400" />
+                        </div>
+                        <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">
                           No notifications
-                        </p>
-                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        </h3>
+                        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                           {searchQuery
                             ? 'Try adjusting your search or filters'
-                            : `You're all caught up!`}
+                            : `You're all caught up! Check back later for updates.`}
                         </p>
                       </motion.div>
                     ) : (
-                      <div className="divide-y divide-gray-200 dark:divide-gray-800">
+                      <div className="p-4 space-y-3">
                         {filteredNotifications.map((notification, index) => (
                           <motion.div
                             key={notification.id}
@@ -224,21 +266,23 @@ export default function NotificationModal({ isOpen, setIsOpen }: NotificationMod
                             exit={{ opacity: 0, y: -20 }}
                             transition={{ delay: index * 0.05 }}
                             onClick={() => handleNotificationClick(notification)}
-                            className={`group p-6 cursor-pointer transition-all ${
-                              getNotificationStyle(notification.type)
-                            } ${
-                              notification.read
-                                ? 'opacity-75'
-                                : 'opacity-100 shadow-lg'
-                            } hover:opacity-100 hover:shadow-xl`}
+                            className={`group p-4 rounded-xl border cursor-pointer transition-all duration-200
+                                    backdrop-blur-sm
+                                    ${notification.read
+                                      ? 'bg-white/50 dark:bg-gray-800/50 border-gray-200/50 dark:border-gray-700/50'
+                                      : 'bg-gradient-to-br from-sky-500/5 to-blue-600/5 dark:from-sky-500/10 dark:to-blue-600/10 border-sky-500/50 dark:border-sky-500/30'
+                                    } hover:shadow-lg hover:scale-[1.01]`}
                           >
                             <div className="flex gap-4">
                               <div className="flex-shrink-0">
-                                <div className={`p-2.5 rounded-xl ${
-                                  notification.type === 'error' ? 'bg-red-100 dark:bg-red-500/20' :
-                                  notification.type === 'warning' ? 'bg-yellow-100 dark:bg-yellow-500/20' :
-                                  notification.type === 'success' ? 'bg-green-100 dark:bg-green-500/20' :
-                                  'bg-blue-100 dark:bg-blue-500/20'
+                                <div className={`p-2.5 rounded-xl shadow-sm ${
+                                  notification.type === 'error' 
+                                    ? 'bg-gradient-to-br from-red-500/10 to-rose-500/10 dark:from-red-500/20 dark:to-rose-500/20' 
+                                    : notification.type === 'warning'
+                                    ? 'bg-gradient-to-br from-amber-500/10 to-yellow-500/10 dark:from-amber-500/20 dark:to-yellow-500/20'
+                                    : notification.type === 'success'
+                                    ? 'bg-gradient-to-br from-emerald-500/10 to-green-500/10 dark:from-emerald-500/20 dark:to-green-500/20'
+                                    : 'bg-gradient-to-br from-sky-500/10 to-blue-500/10 dark:from-sky-500/20 dark:to-blue-500/20'
                                 }`}>
                                   {getNotificationIcon(notification.type)}
                                 </div>
@@ -250,7 +294,10 @@ export default function NotificationModal({ isOpen, setIsOpen }: NotificationMod
                                       {notification.text}
                                     </p>
                                     {notification.tracker_id && (
-                                      <div className="mt-2 inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                                      <div className="mt-2 inline-flex items-center px-2.5 py-1 rounded-lg 
+                                                   text-xs font-medium bg-gray-100/80 dark:bg-gray-800/80 
+                                                   text-gray-700 dark:text-gray-300 border
+                                                   border-gray-200/50 dark:border-gray-700/50">
                                         Fleet {notification.tracker_id}
                                       </div>
                                     )}
@@ -260,7 +307,9 @@ export default function NotificationModal({ isOpen, setIsOpen }: NotificationMod
                                       {format(new Date(notification.created), 'MMM d, h:mm a')}
                                     </time>
                                     {!notification.read && (
-                                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-blue-500 text-white shadow-sm">
+                                      <span className="inline-flex items-center px-2 py-1 rounded-full 
+                                                   text-xs font-medium bg-gradient-to-br from-sky-500 
+                                                   to-blue-600 text-white shadow-sm border border-white/20">
                                         New
                                       </span>
                                     )}

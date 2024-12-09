@@ -20,6 +20,7 @@ import Map, { Marker, NavigationControl } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { VesselSelectionModal } from "./VesselSelectionModal";
 import { EditableVesselName } from "./EditableVesselName";
+import { MAPBOX_TOKEN } from "./Map";
 
 const SUBSCRIPTION_PLANS = [
   {
@@ -45,7 +46,6 @@ const stripePromise = loadStripe(
   "pk_test_51IOqNtHsw5wcdFbBgddIAIJIkUDc5z9MbSFSv9b4jDOzX2XVWRrUzkYncHjWUPghObLa3zKgq9uTsNPxKDrz4Tmu00CcHKLgWN"
 );
 
-const MAPBOX_TOKEN = "pk.eyJ1IjoiYXBvc3RvbGlzbXBvc3RhbmlzIiwiYSI6ImNscmFxMXB2ZjBiMGsyam1qbzJvNmJlbWsifQ.N3v6jcUz5sMF8Rg1e4fE3A";
 
 const getUpdateStatus = (lastUpdate: string) => {
   const minutesSinceUpdate = differenceInMinutes(
@@ -113,6 +113,7 @@ export default function VesselDetails() {
   const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<typeof SUBSCRIPTION_PLANS[0] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const isDarkTheme = useFleetStore((state) => state.isDarkMode);
 
   if (!fleet) return null;
 
@@ -186,10 +187,19 @@ export default function VesselDetails() {
             <div className="flex items-start space-x-2">
               <motion.div
                 whileHover={{ scale: 1.05 }}
-                className="p-2.5 bg-gradient-to-br from-sky-500 to-blue-600 backdrop-blur-lg rounded-lg
+                className="relative p-2.5 bg-gradient-to-br from-sky-500 to-blue-600 backdrop-blur-lg rounded-lg
                          border border-white/20 shadow-lg shadow-sky-500/20"
               >
                 <Ship className="h-5 w-5 text-white" />
+                {updateStatus.type === 'success' && (
+                  <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white dark:border-gray-800 animate-pulse" />
+                )}
+                {updateStatus.type === 'warning' && (
+                  <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-white dark:border-gray-800 animate-pulse" />
+                )}
+                {updateStatus.type === 'error' && (
+                  <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-gray-800 animate-pulse" />
+                )}
               </motion.div>
               <div>
                 <EditableVesselName 
@@ -206,6 +216,15 @@ export default function VesselDetails() {
                       addSuffix: true,
                     })}
                   </span>
+                  <div className="p-1 rounded-md bg-white/10 dark:bg-gray-800/50">
+                    <Navigation 
+                      className="h-3 w-3 text-gray-500 dark:text-gray-400"
+                      style={{ transform: `rotate(${fleet.course}deg)` }}
+                    />
+                  </div>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {fleet.course}°
+                  </span>
                 </div>
               </div>
             </div>
@@ -214,7 +233,7 @@ export default function VesselDetails() {
           {/* Content */}
           <div className="p-3 space-y-3">
             {/* Quick Stats */}
-            <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 className={`premium-card relative overflow-hidden p-3 ${
@@ -306,7 +325,6 @@ export default function VesselDetails() {
                     <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-blue-500/10 dark:bg-blue-400/10">
                       <Navigation
                         className="h-5 w-5 text-blue-500 dark:text-blue-400"
-                        style={{ transform: `rotate(${fleet.course}deg)` }}
                       />
                     </div>
                     <div>
@@ -316,83 +334,6 @@ export default function VesselDetails() {
                       <div className="text-lg font-bold text-gray-900 dark:text-white">
                         {fleet.speed.toFixed(1)} kts
                       </div>
-                      <div className="text-xs font-medium text-blue-500 dark:text-blue-400">
-                        Course: {fleet.course}°
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                className={`premium-card relative overflow-hidden p-3 ${
-                  getUpdateStatus(fleet.updated).type === 'success'
-                    ? 'bg-emerald-500/5 dark:bg-emerald-500/10'
-                    : getUpdateStatus(fleet.updated).type === 'warning'
-                    ? 'bg-amber-500/5 dark:bg-amber-500/10'
-                    : 'bg-red-500/5 dark:bg-red-500/10'
-                }`}
-              >
-                <div className={`absolute top-0 left-0 w-full h-0.5 ${
-                  getUpdateStatus(fleet.updated).type === 'success'
-                    ? 'bg-emerald-500/20 dark:bg-emerald-400/20'
-                    : getUpdateStatus(fleet.updated).type === 'warning'
-                    ? 'bg-amber-500/20 dark:bg-amber-400/20'
-                    : 'bg-red-500/20 dark:bg-red-400/20'
-                }`}>
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: '100%' }}
-                    transition={{
-                      duration: 1,
-                      ease: "easeOut",
-                      repeat: Infinity,
-                      repeatType: "reverse"
-                    }}
-                    className={`h-full ${
-                      getUpdateStatus(fleet.updated).type === 'success'
-                        ? 'bg-emerald-500 dark:bg-emerald-400'
-                        : getUpdateStatus(fleet.updated).type === 'warning'
-                        ? 'bg-amber-500 dark:bg-amber-400'
-                        : 'bg-red-500 dark:bg-red-400'
-                    }`}
-                  />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className={`inline-flex items-center justify-center w-10 h-10 rounded-lg ${
-                      getUpdateStatus(fleet.updated).type === 'success'
-                        ? 'bg-emerald-500/10 dark:bg-emerald-400/10'
-                        : getUpdateStatus(fleet.updated).type === 'warning'
-                        ? 'bg-amber-500/10 dark:bg-amber-400/10'
-                        : 'bg-red-500/10 dark:bg-red-400/10'
-                    }`}>
-                      <div className={`w-2.5 h-2.5 rounded-full animate-pulse ${
-                        getUpdateStatus(fleet.updated).type === 'success'
-                          ? 'bg-emerald-500 dark:bg-emerald-400'
-                          : getUpdateStatus(fleet.updated).type === 'warning'
-                          ? 'bg-amber-500 dark:bg-amber-400'
-                          : 'bg-red-500 dark:bg-red-400'
-                      }`} />
-                    </div>
-                    <div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        Signal
-                      </div>
-                      <div className="text-lg font-bold text-gray-900 dark:text-white">
-                        {getUpdateStatus(fleet.updated).message}
-                      </div>
-                      <div className={`text-xs font-medium ${
-                        getUpdateStatus(fleet.updated).type === 'success'
-                          ? 'text-emerald-500 dark:text-emerald-400'
-                          : getUpdateStatus(fleet.updated).type === 'warning'
-                          ? 'text-amber-500 dark:text-amber-400'
-                          : 'text-red-500 dark:text-red-400'
-                      }`}>
-                        Last update: {formatDistanceToNow(new Date(fleet.updated))} ago
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -401,7 +342,6 @@ export default function VesselDetails() {
 
             {/* Location Card */}
             <motion.div
-              whileHover={{ scale: 1.02 }}
               className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800/50 dark:to-gray-900/50 
                         rounded-lg shadow-lg shadow-gray-200/50 dark:shadow-gray-900/50
                         border border-gray-200/50 dark:border-gray-700/50 overflow-hidden
@@ -447,7 +387,7 @@ export default function VesselDetails() {
                   <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                     Address
                   </div>
-                  <div className="font-medium text-gray-900 dark:text-white">
+                  <div className="font-bold text-sm text-gray-900 dark:text-white">
                     {fleet.position || 'Location not available'}
                   </div>
                 </div>
@@ -472,16 +412,21 @@ export default function VesselDetails() {
                 </div>
               </div>
 
-              <div className="h-36 relative">
+              <div className="h-36 relative overflow-hidden rounded-lg">
                 <Map
                   initialViewState={{
                     longitude: fleet.lng,
                     latitude: fleet.lat,
                     zoom: 14
                   }}
-                  style={{ width: '100%', height: '100%' }}
-                  mapStyle="mapbox://styles/mapbox/dark-v11"
+                  style={{ width: '100%', height: '100%', borderRadius: '0.5rem' }}
                   mapboxAccessToken={MAPBOX_TOKEN}
+                  reuseMaps
+                  mapStyle={
+                    isDarkTheme
+                      ? "mapbox://styles/mapbox/dark-v11"
+                      : "mapbox://styles/mapbox/streets-v12"
+                  }
                 >
                   <Marker
                     longitude={fleet.lng}
@@ -493,7 +438,7 @@ export default function VesselDetails() {
                       className={`w-3 h-3 rounded-full ${getMarkerColor(fleet)} shadow-lg`} 
                     />
                   </Marker>
-                  <NavigationControl position="bottom-right" />
+                  {/* <NavigationControl position="bottom-right" showCompass={false} showZoom /> */}
                 </Map>
               </div>
             </motion.div>
