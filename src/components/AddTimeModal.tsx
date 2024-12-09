@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, CreditCard, Loader2, Clock, Ship, Check, Package, Cpu, Anchor } from "lucide-react";
 import { useFleetStore } from "../store/fleetStore";
@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 import { useFleets } from "../hooks/useFleets";
 import { createPortal } from "react-dom";
 import type { Fleet } from "../types/fleet";
-import { formatDistanceToNow, format } from "date-fns";
+import { formatDistanceToNow, format, addDays, isBefore } from "date-fns";
 
 const stripePromise = loadStripe(
   "pk_test_51IOqNtHsw5wcdFbBgddIAIJIkUDc5z9MbSFSv9b4jDOzX2XVWRrUzkYncHjWUPghObLa3zKgq9uTsNPxKDrz4Tmu00CcHKLgWN"
@@ -38,20 +38,110 @@ interface AddTimeModalProps {
 export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
   const { fleets } = useFleets();
 
+  const [expiringVesselIds, setExpiringVesselIds] = useState<string[]>([]);
+  const [expiredVesselIds, setExpiredVesselIds] = useState<string[]>([]);
   const [selectedTrackers, setSelectedTrackers] = useState<string[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<string>("yearly");
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const now = new Date();
+    const in30Days = addDays(now, 30);
+
+    const expiring: string[] = [];
+    const expired: string[] = [];
+
+    fleets.forEach((fleet) => {
+      if (fleet.subscriptionEnds) {
+        const endDate = new Date(fleet.subscriptionEnds);
+        if (isBefore(endDate, now)) {
+          expired.push(fleet.id);
+        } else if (isBefore(endDate, in30Days)) {
+          expiring.push(fleet.id);
+        }
+      }
+    });
+
+    setExpiringVesselIds(expiring);
+    setExpiredVesselIds(expired);
+    setSelectedTrackers([...expired, ...expiring]);
+  }, [fleets]);
+
+  const getVesselStatus = (fleet: Fleet) => {
+    if (expiredVesselIds.includes(fleet.id)) {
+      return 'expired';
+    }
+    if (expiringVesselIds.includes(fleet.id)) {
+      return 'expiring';
+    }
+    return 'active';
+  };
+
+  const getStatusStyles = (status: 'expired' | 'expiring' | 'active') => {
+    switch (status) {
+      case 'expired':
+        return {
+          border: 'border-red-500/50 dark:border-red-500/30',
+          bg: 'bg-red-500/5 dark:bg-red-500/10',
+          text: 'text-red-500 dark:text-red-400'
+        };
+      case 'expiring':
+        return {
+          border: 'border-amber-500/50 dark:border-amber-500/30',
+          bg: 'bg-amber-500/5 dark:bg-amber-500/10',
+          text: 'text-amber-500 dark:text-amber-400'
+        };
+      default:
+        return {
+          border: 'border-gray-200 dark:border-gray-700',
+          bg: '',
+          text: 'text-gray-500 dark:text-gray-400'
+        };
+    }
+  };
 
   const currentPlan = SUBSCRIPTION_PLANS.find((p) => p.id === selectedPlan);
   
   // Calculate total amount
   const calculateTotal = useMemo(() => {
     if (!currentPlan || selectedTrackers.length === 0) return { total: 0 };
-
     const total = currentPlan.basePrice * selectedTrackers.length;
-
     return { total };
   }, [currentPlan, selectedTrackers.length]);
+
+  const sortedFleets = useMemo(() => {
+    return [...fleets].sort((a, b) => {
+      const aStatus = getVesselStatus(a);
+      const bStatus = getVesselStatus(b);
+      
+      // Custom sort order: expired -> expiring -> active
+      const statusOrder = {
+        expired: 0,
+        expiring: 1,
+        active: 2
+      };
+      
+      // First sort by status
+      const statusDiff = statusOrder[aStatus] - statusOrder[bStatus];
+      if (statusDiff !== 0) return statusDiff;
+      
+      // If same status, sort by subscription end date
+      if (a.subscriptionEnds && b.subscriptionEnds) {
+        return new Date(a.subscriptionEnds).getTime() - new Date(b.subscriptionEnds).getTime();
+      }
+      
+      // If one doesn't have subscription end date, put it last
+      if (a.subscriptionEnds) return -1;
+      if (b.subscriptionEnds) return 1;
+      
+      // If neither has subscription end date, sort by name
+      return a.name.localeCompare(b.name);
+    });
+  }, [fleets, getVesselStatus]);
+
+  const selectableVesselIds = useMemo(() => {
+    return [...expiredVesselIds, ...expiringVesselIds];
+  }, [expiredVesselIds, expiringVesselIds]);
 
   const handleRenewSubscription = async () => {
     if (!currentPlan || selectedTrackers.length === 0) return;
@@ -87,10 +177,10 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
   };
 
   const handleSelectAll = () => {
-    if (selectedTrackers.length === fleets.length) {
+    if (selectedTrackers.length === selectableVesselIds.length) {
       setSelectedTrackers([]);
     } else {
-      setSelectedTrackers(fleets.map(fleet => fleet.id));
+      setSelectedTrackers(selectableVesselIds);
     }
   };
 
@@ -130,9 +220,21 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                       Manage Vessels
                     </h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Extend subscription for your fleet
-                    </p>
+                    <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                      {expiredVesselIds.length > 0 && (
+                        <span className="text-red-500 dark:text-red-400">
+                          {expiredVesselIds.length} vessel{expiredVesselIds.length === 1 ? '' : 's'} expired
+                        </span>
+                      )}
+                      {expiredVesselIds.length > 0 && expiringVesselIds.length > 0 && (
+                        <span className="mx-2">•</span>
+                      )}
+                      {expiringVesselIds.length > 0 && (
+                        <span className="text-amber-500 dark:text-amber-400">
+                          {expiringVesselIds.length} vessel{expiringVesselIds.length === 1 ? '' : 's'} expiring in 30 days
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <button
@@ -163,167 +265,180 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
                             {selectedTrackers.length} selected
                           </span>
                         </div>
-                        <button
-                          onClick={handleSelectAll}
-                          className="px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 
-                                   dark:hover:bg-primary/20 rounded-lg transition-all duration-200 
-                                   active:scale-95"
-                        >
-                          {selectedTrackers.length === fleets.length ? 'Deselect All' : 'Select All'}
-                        </button>
-                      </div>
-
-                      <div className=" overflow-y-auto min-h-0 pr-2">
-                        <div className="grid gap-3">
-                          {fleets.map((fleet: Fleet) => (
-                            <motion.div
-                              key={fleet.id}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              whileHover={{ scale: 1.01 }}
-                              whileTap={{ scale: 0.99 }}
-                              onClick={() => {
-                                if (selectedTrackers.includes(fleet.id)) {
-                                  setSelectedTrackers(prev => prev.filter(id => id !== fleet.id));
-                                } else {
-                                  setSelectedTrackers(prev => [...prev, fleet.id]);
-                                }
-                              }}
-                              className={`group p-4 rounded-xl border transition-all cursor-pointer 
-                                      hover:shadow-md dark:hover:shadow-black/20
-                                      ${
-                                        selectedTrackers.includes(fleet.id)
-                                          ? "border-primary/50 dark:border-primary/30 bg-primary/5 dark:bg-primary/10"
-                                          : "border-gray-200 dark:border-gray-700 hover:border-primary/30 dark:hover:border-primary/20"
-                                      }`}
-                            >
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3 flex-1 min-w-0">
-                                  <div className={`p-2 rounded-lg transition-colors duration-200
-                                              ${
-                                                selectedTrackers.includes(fleet.id)
-                                                  ? "bg-primary/10 dark:bg-primary/20"
-                                                  : "bg-gray-100 dark:bg-gray-800"
-                                              }`}>
-                                    <Ship className={`h-5 w-5 ${
-                                      selectedTrackers.includes(fleet.id)
-                                        ? "text-primary"
-                                        : "text-gray-500 dark:text-gray-400"
-                                    }`} />
-                                  </div>
-                                  <div className="flex flex-col gap-1 flex-1 min-w-0">
-                                    <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                                      {fleet.name}
-                                    </span>
-                                    <span className="text-xs text-gray-500">
-                                      Subscription ends:{' '}
-                                      {fleet.subscriptionEnds
-                                        ? format(new Date(fleet.subscriptionEnds), 'PPP')
-                                        : 'No active subscription'}
-                                    </span>
-                                  </div>
-                                </div>
-                                <div className={`p-2 rounded-lg transition-colors
-                                            ${
-                                              selectedTrackers.includes(fleet.id)
-                                                ? "bg-primary/10 dark:bg-primary/20"
-                                                : "bg-gray-100 dark:bg-gray-800"
-                                            }`}>
-                                  <Check className={`h-5 w-5 transition-all ${
-                                    selectedTrackers.includes(fleet.id)
-                                      ? "opacity-100 text-primary"
-                                      : "opacity-0 text-gray-400"
-                                  }`} />
-                                </div>
-                              </div>
-                            </motion.div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Right Side - Plan Selection & Summary */}
-                    <div className="space-y-6">
-                      {/* Plan Selection */}
-                      <div className="bg-gray-50/80 dark:bg-gray-900/50 rounded-xl p-4 backdrop-blur-sm">
-                        <div className="flex items-center gap-3 mb-4">
-                          <Clock className="h-5 w-5 text-primary" />
-                          <span className="font-medium text-gray-900 dark:text-white">
-                            Select Plan
-                          </span>
-                        </div>
-                        <div className="grid gap-3">
-                          {SUBSCRIPTION_PLANS.map((plan) => (
+                        <div className="flex items-center justify-between mb-4">
+                          <div>
                             <button
-                              key={plan.id}
-                              onClick={() => setSelectedPlan(plan.id)}
-                              className={`p-4 rounded-xl border transition-all text-left
-                                      ${
-                                        selectedPlan === plan.id
-                                          ? "border-primary/50 dark:border-primary/30 bg-primary/5 dark:bg-primary/10"
-                                          : "border-gray-200 dark:border-gray-700 hover:border-primary/30 dark:hover:border-primary/20"
-                                      }`}
+                              type="button"
+                              onClick={handleSelectAll}
+                              className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-primary dark:hover:text-primary transition-colors"
                             >
-                              <div className="flex items-center justify-between mb-1">
-                                <span className="font-medium text-gray-900 dark:text-white">
-                                  {plan.name}
-                                </span>
-                                <span className="text-sm font-medium text-primary">
-                                  €{plan.basePrice}/vessel
-                                </span>
-                              </div>
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
-                                {plan.description}
-                              </p>
+                              {selectedTrackers.length === selectableVesselIds.length && selectableVesselIds.length > 0
+                                ? "Deselect All"
+                                : "Select All"}
                             </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Summary */}
-                      <div className="bg-gray-50/80 dark:bg-gray-900/50 rounded-xl p-4 backdrop-blur-sm">
-                        <div className="flex items-center gap-3 mb-4">
-                          <CreditCard className="h-5 w-5 text-primary" />
-                          <span className="font-medium text-gray-900 dark:text-white">
-                            Summary
-                          </span>
-                        </div>
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-500 dark:text-gray-400">Total</span>
-                            <span className="font-medium text-gray-900 dark:text-white">
-                              €{calculateTotal.total}
+                            <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
+                              ({selectedTrackers.length} of {selectableVesselIds.length} selected)
                             </span>
                           </div>
                         </div>
                       </div>
 
-                      {/* Action Button */}
-                      <button
-                        onClick={handleRenewSubscription}
-                        disabled={isLoading || selectedTrackers.length === 0}
-                        className="w-full py-3 px-4 bg-primary hover:bg-primary/90 text-white 
-                                 font-medium rounded-xl transition-all duration-200 
-                                 disabled:opacity-50 disabled:cursor-not-allowed
-                                 active:scale-[0.98] relative overflow-hidden group"
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 
-                                    translate-x-[-100%] group-hover:translate-x-[100%] transition-transform 
-                                    duration-1000"></div>
-                        <span className="flex items-center justify-center gap-2">
+                      <div className="overflow-y-auto min-h-0 pr-2">
+                        <div className="grid gap-3">
+                          {sortedFleets.map((fleet: Fleet) => {
+                            const status = getVesselStatus(fleet);
+                            const styles = getStatusStyles(status);
+                            const isSelectable = status === 'expired' || status === 'expiring';
+
+                            return (
+                              <motion.div
+                                key={fleet.id}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                whileHover={{ scale: 1.01 }}
+                                whileTap={{ scale: 0.99 }}
+                                onClick={() => {
+                                  if (!isSelectable) return;
+                                  
+                                  if (selectedTrackers.includes(fleet.id)) {
+                                    setSelectedTrackers(prev => prev.filter(id => id !== fleet.id));
+                                  } else {
+                                    setSelectedTrackers(prev => [...prev, fleet.id]);
+                                  }
+                                }}
+                                className={`group p-4 rounded-xl border transition-all
+                                        ${isSelectable ? 'cursor-pointer hover:shadow-md dark:hover:shadow-black/20' : 'cursor-default'}
+                                        ${
+                                          selectedTrackers.includes(fleet.id)
+                                            ? "border-primary/50 dark:border-primary/30 bg-primary/5 dark:bg-primary/10"
+                                            : `${styles.border} ${styles.bg}`
+                                        }`}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                                    <div className="p-2 bg-gray-100/80 dark:bg-gray-800/80 rounded-lg">
+                                      <Ship className={`h-5 w-5 ${isSelectable ? styles.text : 'text-gray-400 dark:text-gray-500'}`} />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                        {fleet.name}
+                                      </h3>
+                                      <div className="flex items-center gap-2 mt-0.5">
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                          IMEI: {fleet.IMEI}
+                                        </p>
+                                        {fleet.subscriptionEnds && (
+                                          <>
+                                            <span className="text-xs text-gray-400">•</span>
+                                            <p className={`text-xs ${styles.text}`}>
+                                              {status === 'expired' ? 'Expired ' : 'Expires '}
+                                              {formatDistanceToNow(new Date(fleet.subscriptionEnds), { addSuffix: true })}
+                                            </p>
+                                          </>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  {isSelectable && (
+                                    <div className={`w-5 h-5 rounded-md border-2 transition-all
+                                                ${
+                                                  selectedTrackers.includes(fleet.id)
+                                                    ? "bg-primary border-primary text-white"
+                                                    : "border-gray-300 dark:border-gray-600"
+                                                }`}
+                                    >
+                                      {selectedTrackers.includes(fleet.id) && (
+                                        <Check className="h-4 w-4" />
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              </motion.div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right Side - Plan Selection */}
+                    <div className="lg:border-l lg:border-gray-200 lg:dark:border-gray-700 lg:pl-6">
+                      <div className="space-y-6">
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Select Plan
+                          </h3>
+                          <div className="mt-3 space-y-3">
+                            {SUBSCRIPTION_PLANS.map((plan) => (
+                              <button
+                                key={plan.id}
+                                onClick={() => setSelectedPlan(plan.id)}
+                                className={`w-full p-4 rounded-xl border transition-all
+                                        ${
+                                          selectedPlan === plan.id
+                                            ? "border-primary/50 dark:border-primary/30 bg-primary/5 dark:bg-primary/10"
+                                            : "border-gray-200 dark:border-gray-700 hover:border-primary/30"
+                                        }`}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div>
+                                    <h4 className="font-medium text-gray-900 dark:text-white">
+                                      {plan.name}
+                                    </h4>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                      {plan.description}
+                                    </p>
+                                  </div>
+                                  <div className="text-right">
+                                    <span className="text-lg font-medium text-gray-900 dark:text-white">
+                                      €{plan.basePrice}
+                                    </span>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                      per vessel
+                                    </p>
+                                  </div>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="bg-gray-50/80 dark:bg-gray-900/50 rounded-xl p-4">
+                          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Summary
+                          </h3>
+                          <div className="mt-3 space-y-2">
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-gray-500 dark:text-gray-400">
+                                Total
+                              </span>
+                              <span className="font-medium text-gray-900 dark:text-white">
+                                €{calculateTotal.total}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={handleRenewSubscription}
+                          disabled={selectedTrackers.length === 0 || isLoading}
+                          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 
+                                   bg-primary text-white rounded-xl font-medium transition-all 
+                                   hover:bg-primary/90 active:scale-95 disabled:opacity-50 
+                                   disabled:pointer-events-none"
+                        >
                           {isLoading ? (
                             <>
-                              <Loader2 className="h-5 w-5 animate-spin" />
+                              <Loader2 className="h-4 w-4 animate-spin" />
                               Processing...
                             </>
                           ) : (
                             <>
-                              <CreditCard className="h-5 w-5" />
+                              <CreditCard className="h-4 w-4" />
                               Proceed to Payment
                             </>
                           )}
-                        </span>
-                      </button>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -333,6 +448,6 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
         </>
       )}
     </AnimatePresence>,
-    document.getElementById('modal-root') as HTMLElement
+    document.body
   );
 }
