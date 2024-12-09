@@ -164,18 +164,21 @@ export default function VesselDetails() {
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: 300, opacity: 0 }}
           className="fixed md:absolute right-0 top-0 h-full w-full md:w-[380px] 
-                   bg-white dark:bg-gray-800 shadow-2xl overflow-y-auto border-l 
-                   border-gray-200/50 dark:border-gray-700/50 z-50"
+                   bg-white dark:bg-gray-800/95 shadow-2xl overflow-y-auto border-l 
+                   border-gray-200/50 dark:border-gray-700/50 z-50 backdrop-blur-xl"
         >
           {/* Compact Header */}
-          <div className="relative p-3 premium-gradient border-b border-gray-200/50 dark:border-gray-700/50">
+          <div className="relative p-3 bg-gradient-to-br from-sky-500/10 to-blue-600/10 
+                         dark:from-sky-500/20 dark:to-blue-600/20 border-b 
+                         border-gray-200/50 dark:border-gray-700/50">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setSelectedFleetId(null)}
-              className="absolute right-3 top-3 p-1 rounded-lg bg-white/10 dark:bg-gray-800/10 
+              className="absolute right-3 top-3 p-1.5 rounded-lg bg-white/10 dark:bg-gray-800/10 
                        backdrop-blur-lg hover:bg-white/20 dark:hover:bg-gray-800/20 
-                       text-gray-700 dark:text-gray-300 transition-all duration-200"
+                       text-gray-700 dark:text-gray-300 transition-all duration-200
+                       border border-white/10 shadow-lg"
             >
               <X className="h-4 w-4" />
             </motion.button>
@@ -183,10 +186,10 @@ export default function VesselDetails() {
             <div className="flex items-start space-x-2">
               <motion.div
                 whileHover={{ scale: 1.05 }}
-                className="p-2 bg-white/10 dark:bg-white/5 backdrop-blur-lg rounded-lg
-                         border border-white/10 dark:border-white/5"
+                className="p-2.5 bg-gradient-to-br from-sky-500 to-blue-600 backdrop-blur-lg rounded-lg
+                         border border-white/20 shadow-lg shadow-sky-500/20"
               >
-                <Ship className="h-5 w-5 text-primary" />
+                <Ship className="h-5 w-5 text-white" />
               </motion.div>
               <div>
                 <EditableVesselName 
@@ -195,7 +198,9 @@ export default function VesselDetails() {
                   className="text-lg font-bold text-gray-900 dark:text-white"
                 />
                 <div className="flex items-center space-x-1.5 mt-1">
-                  <Clock className="h-3 w-3 text-gray-500 dark:text-gray-400" />
+                  <div className="p-1 rounded-md bg-white/10 dark:bg-gray-800/50">
+                    <Clock className="h-3 w-3 text-gray-500 dark:text-gray-400" />
+                  </div>
                   <span className="text-xs text-gray-500 dark:text-gray-400">
                     {formatDistanceToNow(new Date(fleet.updated), {
                       addSuffix: true,
@@ -207,9 +212,9 @@ export default function VesselDetails() {
           </div>
 
           {/* Content */}
-          <div className="p-3 space-y-2">
+          <div className="p-3 space-y-3">
             {/* Quick Stats */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 className={`premium-card relative overflow-hidden p-3 ${
@@ -397,15 +402,16 @@ export default function VesselDetails() {
             {/* Location Card */}
             <motion.div
               whileHover={{ scale: 1.02 }}
-              className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 
+              className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800/50 dark:to-gray-900/50 
                         rounded-lg shadow-lg shadow-gray-200/50 dark:shadow-gray-900/50
-                        border border-gray-200/50 dark:border-gray-700/50 overflow-hidden"
+                        border border-gray-200/50 dark:border-gray-700/50 overflow-hidden
+                        backdrop-blur-sm"
             >
               <div className="p-3">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center space-x-2">
-                    <div className="p-2 rounded-lg bg-gradient-to-br from-violet-500/20 to-purple-500/20">
-                      <MapPin className="h-3.5 w-3.5 text-violet-500 dark:text-violet-400" />
+                    <div className="p-2 rounded-lg bg-gradient-to-br from-sky-500 to-blue-600 shadow-lg shadow-sky-500/20">
+                      <MapPin className="h-3.5 w-3.5 text-white" />
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white">
@@ -419,7 +425,7 @@ export default function VesselDetails() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 mb-2">
-                  <div className="bg-gray-50 dark:bg-gray-900/50 p-2 rounded-lg">
+                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-2.5 rounded-lg border border-gray-200/50 dark:border-gray-700/50">
                     <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                       Latitude
                     </div>
@@ -427,7 +433,7 @@ export default function VesselDetails() {
                       {fleet.lat.toFixed(4)}°N
                     </div>
                   </div>
-                  <div className="bg-gray-50 dark:bg-gray-900/50 p-2 rounded-lg">
+                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-2.5 rounded-lg border border-gray-200/50 dark:border-gray-700/50">
                     <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                       Longitude
                     </div>
@@ -437,7 +443,7 @@ export default function VesselDetails() {
                   </div>
                 </div>
 
-                <div className="bg-gray-50 dark:bg-gray-900/50 p-2 rounded-lg mb-2">
+                <div className="bg-gray-50/50 dark:bg-gray-900/50 p-2.5 rounded-lg border border-gray-200/50 dark:border-gray-700/50 mb-2">
                   <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                     Address
                   </div>
@@ -454,9 +460,11 @@ export default function VesselDetails() {
                     href={`https://www.google.com/maps?q=${fleet.lat},${fleet.lng}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center px-2 py-1 text-xs font-medium text-white 
-                             bg-violet-500 hover:bg-violet-600 dark:bg-violet-600 dark:hover:bg-violet-700
-                             rounded-lg transition-colors duration-200"
+                    className="inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-white 
+                             bg-gradient-to-br from-sky-500 to-blue-600 
+                             hover:from-sky-600 hover:to-blue-700
+                             shadow-lg shadow-sky-500/20 hover:shadow-sky-500/30
+                             rounded-lg transition-all duration-200 border border-white/20"
                   >
                     <MapPin className="h-3 w-3 mr-1" />
                     View in Maps
@@ -479,7 +487,11 @@ export default function VesselDetails() {
                     longitude={fleet.lng}
                     latitude={fleet.lat}
                   >
-                    <div className={`w-3 h-3 rounded-full ${getMarkerColor(fleet)} shadow-lg`} />
+                    <motion.div 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className={`w-3 h-3 rounded-full ${getMarkerColor(fleet)} shadow-lg`} 
+                    />
                   </Marker>
                   <NavigationControl position="bottom-right" />
                 </Map>
@@ -489,34 +501,47 @@ export default function VesselDetails() {
             {/* Vessel Info */}
             <motion.div
               whileHover={{ scale: 1.02 }}
-              className="premium-card p-3 space-y-2"
+              className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800/50 dark:to-gray-900/50 
+                        rounded-lg shadow-lg shadow-gray-200/50 dark:shadow-gray-900/50
+                        border border-gray-200/50 dark:border-gray-700/50 p-3 space-y-2
+                        backdrop-blur-sm"
             >
-              <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
-                Vessel Information
-              </h3>
+              <div className="flex items-center space-x-2 mb-3">
+                <div className="p-2 rounded-lg bg-gradient-to-br from-sky-500 to-blue-600 shadow-lg shadow-sky-500/20">
+                  <Ship className="h-3.5 w-3.5 text-white" />
+                </div>
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                  Vessel Information
+                </h3>
+              </div>
               
-              <div className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700/50">
-                <div className="text-xs text-gray-500 dark:text-gray-400">IMEI</div>
-                <div className="text-xs font-medium text-gray-900 dark:text-white">
-                  {fleet.IMEI}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-2.5 bg-gray-50/50 dark:bg-gray-900/50 
+                              rounded-lg border border-gray-200/50 dark:border-gray-700/50">
+                  <div className="text-xs text-gray-500 dark:text-gray-400">IMEI</div>
+                  <div className="text-xs font-medium text-gray-900 dark:text-white">
+                    {fleet.IMEI}
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700/50">
-                <div className="text-xs text-gray-500 dark:text-gray-400">Last Update</div>
-                <div className="text-xs font-medium text-gray-900 dark:text-white">
-                  {new Date(fleet.updated).toLocaleString()}
+                <div className="flex items-center justify-between p-2.5 bg-gray-50/50 dark:bg-gray-900/50 
+                              rounded-lg border border-gray-200/50 dark:border-gray-700/50">
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Last Update</div>
+                  <div className="text-xs font-medium text-gray-900 dark:text-white">
+                    {new Date(fleet.updated).toLocaleString()}
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex items-center justify-between py-2">
-                <div className="text-xs text-gray-500 dark:text-gray-400">Subscription</div>
-                <div className={`text-xs font-medium ${
-                  fleet.subscriptionStatus === 'active'
-                    ? 'text-emerald-600 dark:text-emerald-400'
-                    : 'text-red-600 dark:text-red-400'
-                }`}>
-                  {fleet.subscriptionStatus === 'active' ? 'Active' : 'Inactive'}
+                <div className="flex items-center justify-between p-2.5 bg-gray-50/50 dark:bg-gray-900/50 
+                              rounded-lg border border-gray-200/50 dark:border-gray-700/50">
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Subscription</div>
+                  <div className={`text-xs font-medium ${
+                    fleet.subscriptionStatus === 'active'
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : 'text-red-600 dark:text-red-400'
+                  }`}>
+                    {fleet.subscriptionStatus === 'active' ? 'Active' : 'Inactive'}
+                  </div>
                 </div>
               </div>
             </motion.div>

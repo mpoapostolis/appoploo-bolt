@@ -165,9 +165,9 @@ export default function VesselMap() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setIsAddTimeModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-br from-indigo-600 to-blue-600 
+            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-br from-sky-500 to-blue-600 
                      text-white rounded-xl font-medium transition-all duration-300 
-                     shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/40 relative 
+                     shadow-lg hover:shadow-xl shadow-sky-500/20 hover:shadow-sky-500/30 relative 
                      overflow-hidden group backdrop-blur-sm border border-white/20"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent 
@@ -178,8 +178,8 @@ export default function VesselMap() {
             </div>
             <span className="text-sm text-white font-medium">Manage Plans</span>
             <div className="hidden sm:flex items-center gap-1.5 pl-2 ml-2 border-l border-white/30">
-              <span className="text-xs font-normal text-indigo-100">Active Plans</span>
-              <span className="px-1.5 py-0.5 bg-indigo-500/30 rounded-full text-xs font-medium text-white">
+              <span className="text-xs font-normal text-sky-100">Active Plans</span>
+              <span className="px-1.5 py-0.5 bg-sky-400/30 rounded-full text-xs font-medium text-white">
                 {fleets.filter(f => f.subscriptionStatus === 'active').length}
               </span>
             </div>
@@ -192,10 +192,10 @@ export default function VesselMap() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleShowAllFleets}
-            className="p-2.5 bg-gradient-to-br from-indigo-600 to-blue-600 rounded-xl 
-                     shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/40 
+            className="p-2.5 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl 
+                     shadow-lg hover:shadow-xl shadow-sky-500/20 hover:shadow-sky-500/30
                      text-white transition-all duration-300 backdrop-blur-sm 
-                     border border-white/20"
+                     border border-white/20 hover:border-white/30"
           >
             <Maximize2 className="h-5 w-5" />
           </motion.button>

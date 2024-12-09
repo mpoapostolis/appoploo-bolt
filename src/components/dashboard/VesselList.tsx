@@ -43,6 +43,7 @@ export const getUpdateStatus = (lastUpdate: string) => {
 export const StatusBadge = ({ status }: { status: any }) => (
   <div
     className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-medium
+                backdrop-blur-sm border border-white/10 shadow-sm
                  ${status.color} ${status.bgColor} transition-all duration-200`}
   >
     {status.icon && (
@@ -67,29 +68,34 @@ export const VesselCard = memo(({ fleet, isSelected, onClick }: any) => {
   return (
     <motion.div
       layout
-      whileHover={{ scale: 1.02 }}
+      whileHover={{ scale: 1.01 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className={`premium-card rounded-xl cursor-pointer transition-all duration-200 
+      className={`relative overflow-hidden rounded-xl cursor-pointer transition-all duration-300 
+                border border-gray-200 dark:border-gray-700/50 shadow-sm hover:shadow-lg
                 ${
                   isSelected
-                    ? "premium-gradient ring-2 ring-primary"
-                    : "hover:bg-gray-50 dark:hover:bg-gray-800/30"
+                    ? "bg-gradient-to-br from-sky-500/10 to-blue-600/10 dark:from-sky-500/20 dark:to-blue-600/20 ring-2 ring-sky-500/50"
+                    : "bg-white dark:bg-gray-800/50 hover:bg-gray-50/80 dark:hover:bg-gray-800/80"
                 }`}
     >
+      <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent 
+                    -translate-x-full hover:translate-x-full transition-transform 
+                    duration-700 ease-out pointer-events-none" />
       <div className="p-4">
         <div className="flex items-start justify-between">
           <div className="flex items-start space-x-3">
             <div
-              className={`p-2.5 rounded-lg ${
-                isSelected
-                  ? "bg-primary/10 dark:bg-primary/20"
-                  : "bg-gray-100 dark:bg-gray-800"
-              }`}
+              className={`p-2.5 rounded-lg backdrop-blur-sm transition-colors duration-300
+                ${
+                  isSelected
+                    ? "bg-gradient-to-br from-sky-500 to-blue-600 shadow-lg shadow-sky-500/20"
+                    : "bg-gray-100 dark:bg-gray-800"
+                }`}
             >
               <Ship
                 className={`h-5 w-5 ${
-                  isSelected ? "text-primary" : updateStatus.color
+                  isSelected ? "text-white" : updateStatus.color
                 }`}
               />
             </div>
@@ -99,9 +105,11 @@ export const VesselCard = memo(({ fleet, isSelected, onClick }: any) => {
                 {fleet.name}
               </h3>
 
-              <div className="mt-2 space-y-1">
+              <div className="mt-2 space-y-2">
                 <div className="flex items-center space-x-2">
-                  <Clock className="h-3.5 w-3.5 text-gray-400" />
+                  <div className="p-1 rounded-md bg-gray-100 dark:bg-gray-800">
+                    <Clock className="h-3.5 w-3.5 text-gray-400" />
+                  </div>
                   <span className="text-xs text-gray-500 dark:text-gray-400">
                     {formatDistanceToNow(new Date(fleet.updated), {
                       addSuffix: true,
@@ -110,28 +118,32 @@ export const VesselCard = memo(({ fleet, isSelected, onClick }: any) => {
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <Battery
-                    className={`h-3.5 w-3.5 ${
-                      batteryVoltage > 12
-                        ? "text-emerald-500 dark:text-emerald-400"
-                        : batteryVoltage > 11
-                        ? "text-amber-500 dark:text-amber-400"
-                        : "text-red-500 dark:text-red-400"
-                    }`}
-                  />
+                  <div className="p-1 rounded-md bg-gray-100 dark:bg-gray-800">
+                    <Battery
+                      className={`h-3.5 w-3.5 ${
+                        batteryVoltage > 12
+                          ? "text-emerald-500 dark:text-emerald-400"
+                          : batteryVoltage > 11
+                          ? "text-amber-500 dark:text-amber-400"
+                          : "text-red-500 dark:text-red-400"
+                      }`}
+                    />
+                  </div>
                   <span className="text-xs text-gray-500 dark:text-gray-400">
                     {batteryVoltage}V
                   </span>
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <Navigation
-                    className={`h-3.5 w-3.5 ${
-                      fleet.speed === 0
-                        ? "text-gray-400 dark:text-gray-500"
-                        : "text-blue-500 dark:text-blue-400"
-                    }`}
-                  />
+                  <div className="p-1 rounded-md bg-gray-100 dark:bg-gray-800">
+                    <Navigation
+                      className={`h-3.5 w-3.5 ${
+                        fleet.speed === 0
+                          ? "text-gray-400 dark:text-gray-500"
+                          : "text-blue-500 dark:text-blue-400"
+                      }`}
+                    />
+                  </div>
                   <span className="text-xs text-gray-500 dark:text-gray-400">
                     {fleet.speed.toFixed(1)} knots
                   </span>
@@ -170,7 +182,7 @@ export default function VesselList() {
         {[...Array(5)].map((_, i) => (
           <div
             key={i}
-            className="h-24 bg-gray-100 dark:bg-gray-800 rounded-xl"
+            className="h-24 bg-gray-100 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50"
           />
         ))}
       </div>
