@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Bell } from 'lucide-react';
-import { useNotifications } from '../../hooks/useNotifications';
-import NotificationModal from './NotificationModal';
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Bell } from "lucide-react";
+import { useNotifications } from "../../hooks/useNotifications";
+import NotificationModal from "./NotificationModal";
 
 export default function NotificationBell() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { notifications } = useNotifications();
-  const unreadCount = notifications?.filter(n => !n.read).length || 0;
+  const unreadCount = notifications?.filter((n) => !n.read).length || 0;
 
   return (
     <>
@@ -26,15 +26,13 @@ export default function NotificationBell() {
             className="absolute -top-1 -right-1 h-5 w-5 bg-primary text-white text-xs 
                      rounded-full flex items-center justify-center font-medium"
           >
-            {unreadCount}
+            {Math.min(9, unreadCount)}
+            {unreadCount > 9 && "+"}
           </motion.span>
         )}
       </motion.button>
 
-      <NotificationModal 
-        isOpen={isModalOpen} 
-        setIsOpen={setIsModalOpen}
-      />
+      <NotificationModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} />
     </>
   );
 }

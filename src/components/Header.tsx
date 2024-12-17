@@ -1,18 +1,20 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Ship, UserCircle, Moon, Sun, LogOut, CreditCard } from "lucide-react";
+import { Ship, UserCircle, Moon, Sun, LogOut, CreditCard, Plus, Settings } from "lucide-react";
 import { useFleetStore } from "../store/fleetStore";
 import NotificationBell from "./notifications/NotificationBell";
 import { pb } from "../lib/pocketbase";
 import toast from "react-hot-toast";
 import ProfileModal from "./ProfileModal";
 import { AddTimeModal } from "./AddTimeModal";
+import OrderTrackerModal from "./OrderTrackerModal";
 
 export default function Header() {
   const { isDarkMode, toggleDarkMode } = useFleetStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isManagePlanModalOpen, setIsManagePlanModalOpen] = useState(false);
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -82,23 +84,48 @@ export default function Header() {
               <AnimatePresence>
                 {isDropdownOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="absolute right-0 mt-2 w-56 rounded-xl bg-white dark:bg-gray-800 
-                             shadow-xl border border-gray-200 dark:border-gray-700/50 overflow-hidden"
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 mt-2 w-64 rounded-xl bg-white dark:bg-gray-800 
+                             shadow-xl border border-gray-200/50 dark:border-gray-700/50 
+                             backdrop-blur-xl overflow-hidden divide-y divide-gray-100 dark:divide-gray-700/50"
                   >
-                    <div className="p-2 space-y-1">
+                    <div className="p-2">
+                      <button
+                        onClick={() => {
+                          setIsOrderModalOpen(true);
+                          setIsDropdownOpen(false);
+                        }}
+                        className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg
+                                 bg-gradient-to-br from-sky-500/10 to-blue-600/10 dark:from-sky-500/20 dark:to-blue-600/20
+                                 text-sky-700 dark:text-sky-300 hover:from-sky-500/20 hover:to-blue-600/20
+                                 dark:hover:from-sky-500/30 dark:hover:to-blue-600/30
+                                 transition-all duration-200 group"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <Plus className="h-4 w-4" />
+                          <span className="font-medium">Order New Tracker</span>
+                        </div>
+                        <div className="h-6 w-6 rounded-full bg-sky-500/20 dark:bg-sky-500/30 
+                                    flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <Plus className="h-3.5 w-3.5" />
+                        </div>
+                      </button>
+                    </div>
+
+                    <div className="p-2 space-y-0.5">
                       <button
                         onClick={() => {
                           setIsProfileModalOpen(true);
                           setIsDropdownOpen(false);
                         }}
                         className="w-full flex items-center space-x-2 px-3 py-2 rounded-lg
-                                 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50
-                                 transition-colors duration-200"
+                                 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50
+                                 transition-all duration-200 group"
                       >
-                        <UserCircle className="h-4 w-4" />
+                        <Settings className="h-4 w-4 group-hover:rotate-45 transition-transform" />
                         <span>Profile Settings</span>
                       </button>
 
@@ -108,34 +135,36 @@ export default function Header() {
                           setIsDropdownOpen(false);
                         }}
                         className="w-full flex items-center space-x-2 px-3 py-2 rounded-lg
-                                 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50
-                                 transition-colors duration-200"
+                                 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50
+                                 transition-all duration-200 group"
                       >
-                        <CreditCard className="h-4 w-4" />
+                        <CreditCard className="h-4 w-4 group-hover:scale-110 transition-transform" />
                         <span>Manage Plan</span>
                       </button>
 
                       <button
                         onClick={toggleDarkMode}
                         className="w-full flex items-center space-x-2 px-3 py-2 rounded-lg
-                                 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50
-                                 transition-colors duration-200"
+                                 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50
+                                 transition-all duration-200 group"
                       >
                         {isDarkMode ? (
-                          <Sun className="h-4 w-4" />
+                          <Sun className="h-4 w-4 group-hover:rotate-90 transition-transform" />
                         ) : (
-                          <Moon className="h-4 w-4" />
+                          <Moon className="h-4 w-4 group-hover:-rotate-90 transition-transform" />
                         )}
                         <span>{isDarkMode ? "Light Mode" : "Dark Mode"}</span>
                       </button>
+                    </div>
 
+                    <div className="p-2">
                       <button
                         onClick={handleLogout}
                         className="w-full flex items-center space-x-2 px-3 py-2 rounded-lg
                                  text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10
-                                 transition-colors duration-200"
+                                 transition-all duration-200 group"
                       >
-                        <LogOut className="h-4 w-4" />
+                        <LogOut className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                         <span>Logout</span>
                       </button>
                     </div>
@@ -160,6 +189,13 @@ export default function Header() {
             key="add-time-modal"
             isOpen={isManagePlanModalOpen}
             onClose={() => setIsManagePlanModalOpen(false)}
+          />
+        )}
+        {isOrderModalOpen && (
+          <OrderTrackerModal
+            key="order-modal"
+            isOpen={isOrderModalOpen}
+            onClose={() => setIsOrderModalOpen(false)}
           />
         )}
       </AnimatePresence>
