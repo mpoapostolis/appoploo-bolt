@@ -1,5 +1,6 @@
-import { useRef, useState, useCallback, useMemo } from "react";
+import { useRef, useState, useCallback, useMemo, useEffect } from "react";
 import Map, { NavigationControl, Source, Layer, MapRef } from "react-map-gl";
+import mapboxgl from "mapbox-gl";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Anchor,
@@ -92,6 +93,29 @@ export function VesselMap() {
     },
     [setDateRange]
   );
+
+  useEffect(() => {
+    if (!mapRef.current || !points?.length || isPointsLoading) return;
+
+    const bounds = new mapboxgl.LngLatBounds();
+
+    // First add fleet points
+    points.forEach((point) => {
+      bounds.extend([point.lng, point.lat]);
+    });
+
+    // Then add current fleet positions to ensure they're in view
+    // if (fleets?.length) {
+    //   fleets.forEach((fleet) => {
+    //     bounds.extend([fleet.lng, fleet.lat]);
+    //   });
+    // }
+
+    mapRef.current.fitBounds(bounds, {
+      padding: { top: 50, bottom: 50, left: 50, right: 50 },
+      duration: 1500,
+    });
+  }, [points, fleets, isPointsLoading]);
 
   const groupedVessels = useMemo(() => {
     if (!fleets) return { critical: [], outdated: [], normal: [] };
@@ -322,7 +346,15 @@ export function VesselMap() {
                                            : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                                        }`}
                           >
-                            <span className={selectedTimeRange.label === range.label ? "font-medium" : "font-normal"}>{range.label}</span>
+                            <span
+                              className={
+                                selectedTimeRange.label === range.label
+                                  ? "font-medium"
+                                  : "font-normal"
+                              }
+                            >
+                              {range.label}
+                            </span>
                           </button>
                         ))}
                       </div>
@@ -414,7 +446,9 @@ export function VesselMap() {
             fleet={fleet}
             isSelected={selectedFleetId === fleet.id}
             onClick={() => handleMarkerClick(fleet)}
-            isLoading={isLoading || isPointsLoading}
+            isLoading={
+              isLoading || (fleet.id === selectedFleetId && isPointsLoading)
+            }
           />
         ))}
 
@@ -441,6 +475,14 @@ export function VesselMap() {
               }}
             />
           </Source>
+        )}
+        {selectedFleet && (
+          <FleetMarker
+            fleet={selectedFleet}
+            isSelected={true}
+            onClick={() => handleMarkerClick(selectedFleet)}
+            isLoading={isPointsLoading}
+          />
         )}
       </Map>
 
