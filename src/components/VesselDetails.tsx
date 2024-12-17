@@ -153,77 +153,86 @@ export function VesselDetails({ isOpen, onClose, fleet }: VesselDetailsProps) {
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-800 rounded-t-2xl 
-                     shadow-xl p-6 pb-8 max-h-[90vh] overflow-y-auto"
+            className="absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-800/95 rounded-t-3xl 
+                     shadow-2xl p-6 pb-8 max-h-[90vh] overflow-y-auto backdrop-blur-xl border-t border-gray-200/20"
           >
             {/* Close button */}
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={onClose}
-              className="absolute z-50 top-4 right-4 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg 
-                       text-gray-500 dark:text-gray-400 transition-colors"
+              className="absolute z-50 top-4 right-4 p-2.5 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-xl 
+                       text-gray-500 dark:text-gray-400 transition-all duration-200 backdrop-blur-xl"
             >
               <X className="h-5 w-5" />
-            </button>
+            </motion.button>
             {/* Compact Header */}
             <div
-              className="relative p-3 bg-gradient-to-br from-sky-500/10 to-blue-600/10 
-                           dark:from-sky-500/20 dark:to-blue-600/20 border-b 
-                           border-gray-200/50 dark:border-gray-700/50"
+              className="relative p-4 bg-gradient-to-br from-sky-500/10 via-blue-500/10 to-indigo-500/10 
+                           dark:from-sky-400/20 dark:via-blue-500/20 dark:to-indigo-500/20 
+                           rounded-2xl border border-white/10 dark:border-white/5 backdrop-blur-xl"
             >
-              <div className="flex items-start space-x-2">
+              <div className="flex items-start space-x-3">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
-                  className="relative p-2.5 bg-gradient-to-br from-sky-500 to-blue-600 backdrop-blur-lg rounded-lg
+                  whileTap={{ scale: 0.95 }}
+                  className="relative p-3 bg-gradient-to-br from-sky-500 via-blue-500 to-indigo-500 backdrop-blur-xl rounded-xl
                          border border-white/20 shadow-lg shadow-sky-500/20"
                 >
-                  <Ship className="h-5 w-5 text-white" />
-                  {updateStatus.type === "success" && (
-                    <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white dark:border-gray-800 animate-pulse" />
-                  )}
-                  {updateStatus.type === "warning" && (
-                    <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-white dark:border-gray-800 animate-pulse" />
-                  )}
-                  {updateStatus.type === "error" && (
-                    <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-gray-800 animate-pulse" />
-                  )}
+                  <Ship className="h-6 w-6 text-white" />
+                  <motion.div 
+                    animate={{ scale: [1, 1.2, 1] }} 
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-white dark:border-gray-800
+                    ${updateStatus.type === "success" ? "bg-emerald-500" : 
+                      updateStatus.type === "warning" ? "bg-amber-500" : "bg-red-500"}`} 
+                  />
                 </motion.div>
                 <div>
                   <EditableVesselName
                     initialName={fleet.name}
                     vesselId={fleet.id}
-                    className="text-lg font-bold text-gray-900 dark:text-white"
+                    className="text-xl font-bold text-gray-900 dark:text-white"
                   />
-                  <div className="flex items-center space-x-1.5 mt-1">
-                    <div className="p-1 rounded-md bg-white/10 dark:bg-gray-800/50">
-                      <Clock className="h-3 w-3 text-gray-500 dark:text-gray-400" />
+                  <div className="flex items-center space-x-2 mt-1.5">
+                    <div className="px-2 py-1 rounded-lg bg-white/10 dark:bg-gray-800/50 backdrop-blur-sm
+                                  border border-gray-200/10 dark:border-gray-700/50">
+                      <div className="flex items-center space-x-1.5">
+                        <Clock className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400" />
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {formatDistanceToNow(new Date(fleet.updated), {
+                            addSuffix: true,
+                          })}
+                        </span>
+                      </div>
                     </div>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {formatDistanceToNow(new Date(fleet.updated), {
-                        addSuffix: true,
-                      })}
-                    </span>
-                    <div className="p-1 rounded-md bg-white/10 dark:bg-gray-800/50">
-                      <Navigation
-                        className="h-3 w-3 text-gray-500 dark:text-gray-400"
-                        style={{ transform: `rotate(${fleet.course}deg)` }}
-                      />
+                    <div className="px-2 py-1 rounded-lg bg-white/10 dark:bg-gray-800/50 backdrop-blur-sm
+                                  border border-gray-200/10 dark:border-gray-700/50">
+                      <div className="flex items-center space-x-1.5">
+                        <Navigation
+                          className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400"
+                          style={{ transform: `rotate(${fleet.course}deg)` }}
+                        />
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {fleet.course}°
+                        </span>
+                      </div>
                     </div>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {fleet.course}°
-                    </span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Content */}
-            <div className="p-3 space-y-3">
+            <div className="p-3 space-y-4 mt-2">
               {/* Quick Stats */}
               <div className="grid grid-cols-2 gap-3">
                 <motion.div
                   whileHover={{ scale: 1.02 }}
-                  className={`premium-card relative overflow-hidden p-3 ${
-                    batteryVoltage > 12
+                  whileTap={{ scale: 0.98 }}
+                  className={`premium-card relative overflow-hidden p-4 rounded-2xl backdrop-blur-xl
+                    border border-gray-200/20 dark:border-gray-700/20
+                    ${batteryVoltage > 12
                       ? "bg-emerald-500/5 dark:bg-emerald-500/10"
                       : batteryVoltage > 11
                       ? "bg-amber-500/5 dark:bg-amber-500/10"
@@ -231,9 +240,8 @@ export function VesselDetails({ isOpen, onClose, fleet }: VesselDetailsProps) {
                   }`}
                 >
                   <div
-                    className={`absolute top-0 left-0 w-full h-0.5
-                    ${
-                      batteryVoltage > 12
+                    className={`absolute top-0 left-0 w-full h-1 rounded-full
+                    ${batteryVoltage > 12
                         ? "bg-emerald-500/20 dark:bg-emerald-400/20"
                         : batteryVoltage > 11
                         ? "bg-amber-500/20 dark:bg-amber-400/20"
@@ -246,9 +254,8 @@ export function VesselDetails({ isOpen, onClose, fleet }: VesselDetailsProps) {
                         width: `${((batteryVoltage - 10) * 100) / 4}%`,
                       }}
                       transition={{ duration: 1, ease: "easeOut" }}
-                      className={`h-full
-                        ${
-                          batteryVoltage > 12
+                      className={`h-full rounded-full
+                        ${batteryVoltage > 12
                             ? "bg-emerald-500 dark:bg-emerald-400"
                             : batteryVoltage > 11
                             ? "bg-amber-500 dark:bg-amber-400"
@@ -260,9 +267,8 @@ export function VesselDetails({ isOpen, onClose, fleet }: VesselDetailsProps) {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <div
-                        className={`inline-flex items-center justify-center w-10 h-10 rounded-lg
-                        ${
-                          batteryVoltage > 12
+                        className={`inline-flex items-center justify-center w-12 h-12 rounded-xl
+                        ${batteryVoltage > 12
                             ? "bg-emerald-500/10 dark:bg-emerald-400/10"
                             : batteryVoltage > 11
                             ? "bg-amber-500/10 dark:bg-amber-400/10"
@@ -270,7 +276,7 @@ export function VesselDetails({ isOpen, onClose, fleet }: VesselDetailsProps) {
                         }`}
                       >
                         <Battery
-                          className={`h-5 w-5 ${
+                          className={`h-6 w-6 ${
                             batteryVoltage > 12
                               ? "text-emerald-500 dark:text-emerald-400"
                               : batteryVoltage > 11
@@ -280,14 +286,14 @@ export function VesselDetails({ isOpen, onClose, fleet }: VesselDetailsProps) {
                         />
                       </div>
                       <div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
                           Battery
                         </div>
-                        <div className="text-lg font-bold text-gray-900 dark:text-white">
+                        <div className="text-2xl font-bold text-gray-900 dark:text-white">
                           {batteryVoltage}V
                         </div>
                         <div
-                          className={`text-xs font-medium ${
+                          className={`text-xs font-medium mt-0.5 ${
                             batteryVoltage > 12
                               ? "text-emerald-500 dark:text-emerald-400"
                               : batteryVoltage > 11
@@ -308,27 +314,29 @@ export function VesselDetails({ isOpen, onClose, fleet }: VesselDetailsProps) {
 
                 <motion.div
                   whileHover={{ scale: 1.02 }}
-                  className="premium-card relative overflow-hidden p-3 bg-blue-500/5 dark:bg-blue-500/10"
+                  whileTap={{ scale: 0.98 }}
+                  className="premium-card relative overflow-hidden p-4 rounded-2xl bg-blue-500/5 dark:bg-blue-500/10
+                           border border-gray-200/20 dark:border-gray-700/20 backdrop-blur-xl"
                 >
-                  <div className="absolute top-0 left-0 w-full h-0.5 bg-blue-500/20 dark:bg-blue-400/20">
+                  <div className="absolute top-0 left-0 w-full h-1 rounded-full bg-blue-500/20 dark:bg-blue-400/20">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${(fleet.speed / 20) * 100}%` }}
                       transition={{ duration: 1, ease: "easeOut" }}
-                      className="h-full bg-blue-500 dark:bg-blue-400"
+                      className="h-full rounded-full bg-blue-500 dark:bg-blue-400"
                     />
                   </div>
 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-blue-500/10 dark:bg-blue-400/10">
-                        <Navigation className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+                      <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-500/10 dark:bg-blue-400/10">
+                        <Navigation className="h-6 w-6 text-blue-500 dark:text-blue-400" />
                       </div>
                       <div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
                           Speed
                         </div>
-                        <div className="text-lg font-bold text-gray-900 dark:text-white">
+                        <div className="text-2xl font-bold text-gray-900 dark:text-white">
                           {fleet.speed.toFixed(1)} kts
                         </div>
                       </div>
@@ -339,16 +347,17 @@ export function VesselDetails({ isOpen, onClose, fleet }: VesselDetailsProps) {
 
               {/* Location Card */}
               <motion.div
-                className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800/50 dark:to-gray-900/50 
-                          rounded-lg shadow-lg shadow-gray-200/50 dark:shadow-gray-900/50
-                          border border-gray-200/50 dark:border-gray-700/50 overflow-hidden
-                          backdrop-blur-sm"
+                whileHover={{ scale: 1.01 }}
+                className="bg-gradient-to-br from-white/50 to-gray-50/50 dark:from-gray-800/50 dark:to-gray-900/50 
+                          rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-gray-900/50
+                          border border-gray-200/20 dark:border-gray-700/20 overflow-hidden
+                          backdrop-blur-xl"
               >
-                <div className="p-3">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-2">
-                      <div className="p-2 rounded-lg bg-gradient-to-br from-sky-500 to-blue-600 shadow-lg shadow-sky-500/20">
-                        <MapPin className="h-3.5 w-3.5 text-white" />
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2.5 rounded-xl bg-gradient-to-br from-sky-500 via-blue-500 to-indigo-500 shadow-lg shadow-sky-500/20">
+                        <MapPin className="h-4 w-4 text-white" />
                       </div>
                       <div>
                         <h3 className="text-sm font-medium text-gray-900 dark:text-white">
@@ -363,55 +372,69 @@ export function VesselDetails({ isOpen, onClose, fleet }: VesselDetailsProps) {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 mb-2">
-                    <div className="bg-gray-50/50 dark:bg-gray-900/50 p-2.5 rounded-lg border border-gray-200/50 dark:border-gray-700/50">
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <motion.div 
+                      whileHover={{ scale: 1.02 }}
+                      className="bg-gray-50/50 dark:bg-gray-900/50 p-3 rounded-xl border border-gray-200/20 dark:border-gray-700/20
+                                backdrop-blur-sm"
+                    >
                       <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                         Latitude
                       </div>
                       <div className="font-medium text-gray-900 dark:text-white">
                         {fleet.lat.toFixed(4)}°N
                       </div>
-                    </div>
-                    <div className="bg-gray-50/50 dark:bg-gray-900/50 p-2.5 rounded-lg border border-gray-200/50 dark:border-gray-700/50">
+                    </motion.div>
+                    <motion.div 
+                      whileHover={{ scale: 1.02 }}
+                      className="bg-gray-50/50 dark:bg-gray-900/50 p-3 rounded-xl border border-gray-200/20 dark:border-gray-700/20
+                                backdrop-blur-sm"
+                    >
                       <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                         Longitude
                       </div>
                       <div className="font-medium text-gray-900 dark:text-white">
                         {fleet.lng.toFixed(4)}°E
                       </div>
-                    </div>
+                    </motion.div>
                   </div>
 
-                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-2.5 rounded-lg border border-gray-200/50 dark:border-gray-700/50 mb-2">
+                  <motion.div 
+                    whileHover={{ scale: 1.01 }}
+                    className="bg-gray-50/50 dark:bg-gray-900/50 p-3 rounded-xl border border-gray-200/20 dark:border-gray-700/20 mb-3
+                              backdrop-blur-sm"
+                  >
                     <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                       Address
                     </div>
                     <div className="font-bold text-sm text-gray-900 dark:text-white">
                       {fleet.position || "Location not available"}
                     </div>
-                  </div>
+                  </motion.div>
 
                   <div className="flex items-center justify-between">
                     <div className="text-xs text-gray-500 dark:text-gray-400">
                       Course: {fleet.course}°
                     </div>
-                    <a
+                    <motion.a
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       href={`https://www.google.com/maps?q=${fleet.lat},${fleet.lng}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-white 
-                               bg-gradient-to-br from-sky-500 to-blue-600 
-                               hover:from-sky-600 hover:to-blue-700
+                      className="inline-flex items-center px-3 py-2 text-xs font-medium text-white 
+                               bg-gradient-to-br from-sky-500 via-blue-500 to-indigo-500
+                               hover:from-sky-600 hover:via-blue-600 hover:to-indigo-600
                                shadow-lg shadow-sky-500/20 hover:shadow-sky-500/30
-                               rounded-lg transition-all duration-200 border border-white/20"
+                               rounded-xl transition-all duration-200 border border-white/20"
                     >
-                      <MapPin className="h-3 w-3 mr-1" />
+                      <MapPin className="h-3.5 w-3.5 mr-1.5" />
                       View in Maps
-                    </a>
+                    </motion.a>
                   </div>
                 </div>
 
-                <div className="h-36 relative overflow-hidden rounded-lg">
+                <div className="h-48 relative overflow-hidden rounded-xl mx-4 mb-4 border border-gray-200/20 dark:border-gray-700/20">
                   <Map
                     viewState={{
                       longitude: fleet.lng,
@@ -421,7 +444,7 @@ export function VesselDetails({ isOpen, onClose, fleet }: VesselDetailsProps) {
                     style={{
                       width: "100%",
                       height: "100%",
-                      borderRadius: "0.5rem",
+                      borderRadius: "0.75rem",
                     }}
                     mapboxAccessToken={MAPBOX_TOKEN}
                     reuseMaps
@@ -435,37 +458,37 @@ export function VesselDetails({ isOpen, onClose, fleet }: VesselDetailsProps) {
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        className={`w-3 h-3 rounded-full ${getMarkerColor(
-                          fleet
-                        )} shadow-lg`}
+                        className={`w-4 h-4 rounded-full ${getMarkerColor(fleet)} shadow-lg
+                                  border-2 border-white dark:border-gray-800`}
                       />
                     </Marker>
-                    {/* <NavigationControl position="bottom-right" showCompass={false} showZoom /> */}
+                    <NavigationControl position="bottom-right" showCompass={false} showZoom />
                   </Map>
                 </div>
               </motion.div>
 
               {/* Vessel Info */}
               <motion.div
-                whileHover={{ scale: 1.02 }}
-                className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800/50 dark:to-gray-900/50 
-                          rounded-lg shadow-lg shadow-gray-200/50 dark:shadow-gray-900/50
-                          border border-gray-200/50 dark:border-gray-700/50 p-3 space-y-2
-                          backdrop-blur-sm"
+                whileHover={{ scale: 1.01 }}
+                className="bg-gradient-to-br from-white/50 to-gray-50/50 dark:from-gray-800/50 dark:to-gray-900/50 
+                          rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-gray-900/50
+                          border border-gray-200/20 dark:border-gray-700/20 p-4 space-y-3
+                          backdrop-blur-xl"
               >
-                <div className="flex items-center space-x-2 mb-3">
-                  <div className="p-2 rounded-lg bg-gradient-to-br from-sky-500 to-blue-600 shadow-lg shadow-sky-500/20">
-                    <Ship className="h-3.5 w-3.5 text-white" />
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-sky-500 via-blue-500 to-indigo-500 shadow-lg shadow-sky-500/20">
+                    <Ship className="h-4 w-4 text-white" />
                   </div>
                   <h3 className="text-sm font-medium text-gray-900 dark:text-white">
                     Vessel Information
                   </h3>
                 </div>
 
-                <div className="space-y-2">
-                  <div
-                    className="flex items-center justify-between p-2.5 bg-gray-50/50 dark:bg-gray-900/50 
-                                rounded-lg border border-gray-200/50 dark:border-gray-700/50"
+                <div className="space-y-3">
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    className="flex items-center justify-between p-3 bg-gray-50/50 dark:bg-gray-900/50 
+                              rounded-xl border border-gray-200/20 dark:border-gray-700/20 backdrop-blur-sm"
                   >
                     <div className="text-xs text-gray-500 dark:text-gray-400">
                       IMEI
@@ -473,11 +496,12 @@ export function VesselDetails({ isOpen, onClose, fleet }: VesselDetailsProps) {
                     <div className="text-xs font-medium text-gray-900 dark:text-white">
                       {fleet.IMEI}
                     </div>
-                  </div>
+                  </motion.div>
 
-                  <div
-                    className="flex items-center justify-between p-2.5 bg-gray-50/50 dark:bg-gray-900/50 
-                                rounded-lg border border-gray-200/50 dark:border-gray-700/50"
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    className="flex items-center justify-between p-3 bg-gray-50/50 dark:bg-gray-900/50 
+                              rounded-xl border border-gray-200/20 dark:border-gray-700/20 backdrop-blur-sm"
                   >
                     <div className="text-xs text-gray-500 dark:text-gray-400">
                       Last Update
@@ -485,11 +509,12 @@ export function VesselDetails({ isOpen, onClose, fleet }: VesselDetailsProps) {
                     <div className="text-xs font-medium text-gray-900 dark:text-white">
                       {new Date(fleet.updated).toLocaleString()}
                     </div>
-                  </div>
+                  </motion.div>
 
-                  <div
-                    className="flex items-center justify-between p-2.5 bg-gray-50/50 dark:bg-gray-900/50 
-                                rounded-lg border border-gray-200/50 dark:border-gray-700/50"
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    className="flex items-center justify-between p-3 bg-gray-50/50 dark:bg-gray-900/50 
+                              rounded-xl border border-gray-200/20 dark:border-gray-700/20 backdrop-blur-sm"
                   >
                     <div className="text-xs text-gray-500 dark:text-gray-400">
                       Subscription
@@ -505,7 +530,7 @@ export function VesselDetails({ isOpen, onClose, fleet }: VesselDetailsProps) {
                         ? "Active"
                         : "Inactive"}
                     </div>
-                  </div>
+                  </motion.div>
                 </div>
               </motion.div>
             </div>
