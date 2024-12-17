@@ -55,6 +55,8 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    if (!fleets) return;
+    
     const now = new Date();
     const in30Days = addDays(now, 29);
 
@@ -74,7 +76,9 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
 
     setExpiringVesselIds(expiring);
     setExpiredVesselIds(expired);
-    setSelectedTrackers([...expired, ...expiring]);
+    if (expiring.length > 0 || expired.length > 0) {
+      setSelectedTrackers([...expired, ...expiring]);
+    }
   }, [fleets]);
 
   const getVesselStatus = (fleet: Fleet) => {
