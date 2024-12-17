@@ -231,31 +231,31 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
           >
             <div
               className="relative w-full max-w-4xl bg-white/90 dark:bg-gray-800/90 rounded-2xl shadow-2xl 
-                          flex flex-col max-h-[90vh] md:max-h-[85vh] backdrop-blur-xl
+                          flex flex-col h-[90vh] md:max-h-[85vh] backdrop-blur-xl
                           border border-gray-200/50 dark:border-gray-700/50"
             >
               {/* Header */}
               <div
-                className="flex-shrink-0 flex items-center justify-between p-4 sm:p-6 
+                className="flex-shrink-0 flex items-center justify-between p-3 sm:p-6 
                             border-b border-gray-200/50 dark:border-gray-700/50
                             bg-gradient-to-br from-sky-500/10 to-blue-600/10 
                             dark:from-sky-500/20 dark:to-blue-600/20"
               >
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 sm:gap-4">
                   <div
-                    className="p-3 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl 
+                    className="p-2 sm:p-3 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl 
                                shadow-lg shadow-sky-500/20 border border-white/20"
                   >
-                    <Anchor className="h-5 w-5 text-white" />
+                    <Anchor className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
                       Manage Vessels
                     </h2>
-                    <div className="text-sm text-gray-500 dark:text-gray-400 mt-1 space-x-2">
+                    <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 flex flex-wrap gap-2">
                       {expiredVesselIds.length > 0 && (
                         <span
-                          className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                          className="inline-flex items-center px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium
                                      bg-red-500/10 dark:bg-red-500/20 text-red-600 dark:text-red-400
                                      border border-red-500/20 dark:border-red-500/30"
                         >
@@ -265,7 +265,7 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
                       )}
                       {expiringVesselIds.length > 0 && (
                         <span
-                          className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                          className="inline-flex items-center px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium
                                      bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400
                                      border border-amber-500/20 dark:border-amber-500/30"
                         >
@@ -274,7 +274,7 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
                         </span>
                       )}
                       <span
-                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                        className="inline-flex items-center px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium
                                    bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400
                                    border border-emerald-500/20 dark:border-emerald-500/30"
                       >
@@ -290,39 +290,39 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={onClose}
-                  className="p-2 text-gray-500 dark:text-gray-400 transition-all duration-200 
+                  className="p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 transition-all duration-200 
                            rounded-lg bg-gray-100 dark:bg-gray-700/50 hover:bg-gray-200 
                            dark:hover:bg-gray-700 border border-gray-200/50 dark:border-gray-600/50"
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-4 w-4 sm:h-5 sm:w-5" />
                 </motion.button>
               </div>
 
               {/* Content */}
-              <div className="flex-1 lg:overflow-hidden overflow-y-auto">
-                <div className="h-full p-4 sm:p-6">
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+              <div className="flex-1 overflow-y-auto">
+                <div className="h-full p-3 sm:p-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 h-full">
                     {/* Left Side - Vessel Selection */}
                     <div className="lg:col-span-2 flex flex-col h-[40vh] lg:h-[70vh]">
                       <div
                         className="flex-shrink-0 flex items-center justify-between 
                                     bg-gradient-to-br from-sky-500/5 to-blue-600/5 
                                     dark:from-sky-500/10 dark:to-blue-600/10 
-                                    p-4 rounded-xl backdrop-blur-sm mb-4
+                                    p-3 sm:p-4 rounded-xl backdrop-blur-sm mb-3 sm:mb-4
                                     border border-gray-200/50 dark:border-gray-700/50"
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 sm:gap-3">
                           <div
-                            className="p-2 bg-gradient-to-br from-sky-500 to-blue-600 
+                            className="p-1.5 sm:p-2 bg-gradient-to-br from-sky-500 to-blue-600 
                                       rounded-lg shadow-lg shadow-sky-500/20 border border-white/20"
                           >
-                            <Ship className="h-5 w-5 text-white" />
+                            <Ship className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                           </div>
-                          <span className="font-medium text-gray-900 dark:text-white">
+                          <span className="font-medium text-sm sm:text-base text-gray-900 dark:text-white">
                             Select Vessels
                           </span>
                           <span
-                            className="px-2.5 py-1 bg-sky-500/10 dark:bg-sky-500/20 text-sky-600 dark:text-sky-400
+                            className="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-sky-500/10 dark:bg-sky-500/20 text-sky-600 dark:text-sky-400
                                        rounded-full text-xs font-medium border border-sky-500/20"
                           >
                             {selectedTrackers.length} selected
@@ -331,7 +331,7 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
                         <button
                           type="button"
                           onClick={handleSelectAll}
-                          className="text-sm font-medium px-3 py-1.5 rounded-lg
+                          className="text-xs sm:text-sm font-medium px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg
                                    bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 
                                    dark:hover:bg-gray-700 transition-all duration-200
                                    text-gray-700 dark:text-gray-200 hover:text-sky-600 
@@ -347,7 +347,7 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
                       </div>
 
                       <div className="overflow-y-auto min-h-0 pr-2">
-                        <div className="grid gap-3">
+                        <div className="grid gap-2 sm:gap-3">
                           {sortedFleets.map((fleet: Fleet) => {
                             const status = getVesselStatus(fleet);
                             const styles = getStatusStyles(status);
@@ -375,7 +375,7 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
                                     ]);
                                   }
                                 }}
-                                className={`group p-4 rounded-xl border transition-all
+                                className={`group p-3 sm:p-4 rounded-xl border transition-all
                                         ${
                                           isSelectable
                                             ? "cursor-pointer hover:shadow-md dark:hover:shadow-black/20"
@@ -387,18 +387,15 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
                                             : `${styles.border} ${styles.bg}`
                                         }`}
                               >
-                                <div className="flex items-center justify-between gap-4">
+                                <div className="flex items-center justify-between gap-3 sm:gap-4">
                                   {/* Left side - Icon */}
                                   <div className="flex-shrink-0">
                                     <div
-                                      className={`p-2.5 rounded-lg ${
-                                        selectedTrackers.includes(fleet.id)
-                                          ? "bg-primary/10 dark:bg-primary/20"
-                                          : "bg-gray-100/80 dark:bg-gray-800/80"
-                                      }`}
+                                      className={`p-1.5 sm:p-2 bg-gradient-to-br from-sky-500 to-blue-600 
+                                        rounded-lg shadow-lg shadow-sky-500/20 border border-white/20`}
                                     >
                                       <Ship
-                                        className={`h-5 w-5 ${
+                                        className={`h-4 w-4 sm:h-5 sm:w-5 ${
                                           isSelectable
                                             ? styles.text
                                             : "text-gray-400 dark:text-gray-500"
@@ -409,12 +406,12 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
 
                                   {/* Middle - Vessel Info */}
                                   <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2">
-                                      <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                    <div className="flex items-center gap-2 sm:gap-3">
+                                      <h3 className="text-sm sm:text-base font-medium text-gray-900 dark:text-white truncate">
                                         {fleet.name}
                                       </h3>
                                       <span
-                                        className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs 
+                                        className={`inline-flex items-center rounded-md px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs 
                                                     font-medium ring-1 ring-inset backdrop-blur-sm
                                                     border border-current/20 ${styles.badge}`}
                                       >
@@ -426,7 +423,7 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
                                       </span>
                                     </div>
 
-                                    <div className="mt-1 flex items-center gap-3 text-xs">
+                                    <div className="mt-1 flex items-center gap-2 sm:gap-3 text-xs">
                                       <div className="flex items-center gap-1.5">
                                         <div className="p-1 rounded-md bg-gray-100/80 dark:bg-gray-800/80">
                                           <Cpu className="h-3.5 w-3.5 text-gray-400" />
@@ -459,7 +456,7 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
                                   {isSelectable && (
                                     <div className="flex-shrink-0">
                                       <div
-                                        className={`w-5 h-5 rounded-md border-2 transition-all
+                                        className={`w-5 h-5 sm:w-6 sm:h-6 rounded-md border-2 transition-all
                                                   ${
                                                     selectedTrackers.includes(
                                                       fleet.id
@@ -470,7 +467,7 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
                                       >
                                         {selectedTrackers.includes(
                                           fleet.id
-                                        ) && <Check className="h-4 w-4" />}
+                                        ) && <Check className="h-4 w-4 sm:h-5 sm:w-5" />}
                                       </div>
                                     </div>
                                   )}
@@ -484,28 +481,28 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
 
                     {/* Right Side - Plan Selection */}
                     <div className="lg:border-l lg:border-gray-200/50 lg:dark:border-gray-700/50 lg:pl-6">
-                      <div className="space-y-6">
+                      <div className="space-y-4 sm:space-y-6">
                         <div>
-                          <div className="flex items-center gap-3 mb-4">
+                          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
                             <div
-                              className="p-2 bg-gradient-to-br from-sky-500 to-blue-600 
+                              className="p-1.5 sm:p-2 bg-gradient-to-br from-sky-500 to-blue-600 
                                         rounded-lg shadow-lg shadow-sky-500/20 border border-white/20"
                             >
-                              <Package className="h-5 w-5 text-white" />
+                              <Package className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                             </div>
-                            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                            <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white">
                               Select Plan
                             </h3>
                           </div>
 
-                          <div className="space-y-3">
+                          <div className="space-y-2 sm:space-y-3">
                             {SUBSCRIPTION_PLANS.map((plan) => (
                               <motion.button
                                 key={plan.id}
                                 whileHover={{ scale: 1.01 }}
                                 whileTap={{ scale: 0.99 }}
                                 onClick={() => setSelectedPlan(plan.id)}
-                                className={`w-full p-4 rounded-xl border transition-all duration-200
+                                className={`w-full p-3 sm:p-4 rounded-xl border transition-all duration-200
                                         backdrop-blur-sm
                                         ${
                                           selectedPlan === plan.id
@@ -515,15 +512,15 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
                               >
                                 <div className="flex items-center justify-between">
                                   <div>
-                                    <h4 className="font-medium text-gray-900 dark:text-white">
+                                    <h4 className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">
                                       {plan.name}
                                     </h4>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                                       {plan.description}
                                     </p>
                                   </div>
                                   <div className="text-right">
-                                    <span className="text-lg font-medium text-gray-900 dark:text-white">
+                                    <span className="text-base sm:text-lg font-medium text-gray-900 dark:text-white">
                                       €{plan.basePrice}
                                     </span>
                                     <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -539,18 +536,18 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
                         <div
                           className="bg-gradient-to-br from-sky-500/5 to-blue-600/5 
                                     dark:from-sky-500/10 dark:to-blue-600/10 
-                                    rounded-xl p-4 backdrop-blur-sm
+                                    rounded-xl p-3 sm:p-4 backdrop-blur-sm
                                     border border-gray-200/50 dark:border-gray-700/50"
                         >
-                          <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                          <h3 className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">
                             Summary
                           </h3>
-                          <div className="mt-3 space-y-2">
+                          <div className="mt-2 sm:mt-3 space-y-2">
                             <div className="flex items-center justify-between">
-                              <span className="text-sm text-gray-500 dark:text-gray-400">
+                              <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                                 Total Amount
                               </span>
-                              <span className="text-lg font-medium text-gray-900 dark:text-white">
+                              <span className="text-base sm:text-lg font-medium text-gray-900 dark:text-white">
                                 €{calculateTotal.total}
                               </span>
                             </div>
@@ -562,23 +559,23 @@ export function AddTimeModal({ isOpen, onClose }: AddTimeModalProps) {
                           whileTap={{ scale: 0.98 }}
                           onClick={handleRenewSubscription}
                           disabled={selectedTrackers.length === 0 || isLoading}
-                          className="w-full flex items-center justify-center gap-2 px-4 py-3
+                          className="w-full flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3
                                    bg-gradient-to-br from-sky-500 to-blue-600 
                                    text-white rounded-xl font-medium transition-all 
                                    hover:from-sky-600 hover:to-blue-700
                                    shadow-lg shadow-sky-500/20 hover:shadow-sky-500/30
                                    border border-white/20 disabled:opacity-50 
-                                   disabled:pointer-events-none"
+                                   disabled:pointer-events-none text-sm sm:text-base"
                         >
                           {isLoading ? (
                             <>
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                              Processing...
+                              <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+                              <span className="text-sm sm:text-base">Processing...</span>
                             </>
                           ) : (
                             <>
-                              <CreditCard className="h-4 w-4" />
-                              Proceed to Payment
+                              <CreditCard className="h-4 w-4 sm:h-5 sm:w-5" />
+                              <span className="text-sm sm:text-base">Proceed to Payment</span>
                             </>
                           )}
                         </motion.button>
