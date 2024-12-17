@@ -1,7 +1,16 @@
-import { memo } from "react";
-import { motion } from "framer-motion";
-import { differenceInMinutes, format } from "date-fns";
-import { Fleet } from "@/types/fleet";
+import { memo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { differenceInMinutes, formatDistanceToNow } from "date-fns";
+import {
+  Battery,
+  Navigation2,
+  ChevronDown,
+  ChevronUp,
+  Clock,
+  Waves,
+  Compass,
+} from "lucide-react";
+import { Fleet } from "../types/fleet";
 
 interface VesselItemProps {
   fleet: Fleet;
@@ -9,53 +18,69 @@ interface VesselItemProps {
   isSelected: boolean;
 }
 
-export const VesselItem = memo(({ fleet, onClick, isSelected }: VesselItemProps) => {
-  const minutesSinceUpdate = differenceInMinutes(
-    new Date(),
-    new Date(fleet.updated)
-  );
+export const VesselItem = memo(
+  ({ fleet, onClick, isSelected }: VesselItemProps) => {
+    const minutesSinceUpdate = differenceInMinutes(
+      new Date(),
+      new Date(fleet.updated)
+    );
 
-  const getStatusColor = () => {
-    if (minutesSinceUpdate >= 30) return "text-amber-500 dark:text-amber-400";
-    if (fleet.battery <= 20) return "text-red-500 dark:text-red-400";
-    return "text-sky-500 dark:text-sky-400";
-  };
+    const isOnline = minutesSinceUpdate < 30;
 
-  return (
-    <motion.button
-      whileHover={{ backgroundColor: "rgba(0, 0, 0, 0.05)" }}
-      onClick={() => onClick(fleet)}
-      className={`w-full px-4 py-3 text-left border-b border-gray-100 dark:border-gray-700/50 
-        ${isSelected ? "bg-sky-50 dark:bg-sky-900/20" : ""}`}
-    >
-      <div className="flex items-center justify-between mb-1">
-        <span className="font-medium">{fleet.name}</span>
-        <span className={`text-xs font-medium ${getStatusColor()}`}>
-          {minutesSinceUpdate >= 30
-            ? "⚠️ Outdated"
-            : fleet.battery <= 20
-            ? "🔋 Low Battery"
-            : "✓ Normal"}
-        </span>
-      </div>
-      <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 dark:text-gray-300">
-        <div className="flex items-center gap-1">
-          <span
-            className={`inline-block w-2 h-2 rounded-full ${
-              fleet.battery <= 20
-                ? "bg-red-500"
-                : fleet.battery <= 50
-                ? "bg-amber-500"
-                : "bg-sky-500"
-            }`}
-          ></span>
-          {fleet.battery}%
+    const getStatusColor = () => {
+      if (!isOnline) return "text-amber-500";
+      if (fleet.battery <= 1150) return "text-red-500";
+      return "text-emerald-500";
+    };
+
+    return (
+      <button
+        onClick={() => onClick(fleet)}
+        className={`w-full px-4 py-3 text-left transition-colors
+          ${isSelected 
+            ? "bg-sky-50 dark:bg-sky-900/20 border-l-2 border-sky-500" 
+            : "hover:bg-gray-50 dark:hover:bg-gray-800/50 border-l-2 border-transparent"}`}
+      >
+        <div className="flex items-start gap-2.5">
+          {/* Status Dot */}
+          <span className={`mt-2 h-1.5 w-1.5 shrink-0 rounded-full ${
+            !isOnline
+              ? "bg-amber-500"
+              : fleet.battery <= 1150
+              ? "bg-red-500"
+              : "bg-emerald-500"
+          }`} />
+
+          {/* Main Content */}
+          <div className="min-w-0 flex-1">
+            {/* Top Row: Name and Last Update */}
+            <div className="flex items-center justify-between">
+              <span className="font-medium text-gray-900 dark:text-white truncate pr-4">
+                {fleet.name}
+              </span>
+              <div className="flex items-center gap-1 text-xs text-gray-500 shrink-0">
+                <Clock className="h-3 w-3" />
+                <span>{formatDistanceToNow(new Date(fleet.updated), { addSuffix: true })}</span>
+              </div>
+            </div>
+
+            {/* Bottom Row: Battery and Speed */}
+            <div className="mt-1.5 flex items-center gap-3 text-xs font-medium">
+              <div className="flex items-center gap-1">
+                <Battery className={`h-3 w-3 ${getStatusColor()}`} />
+                <span className={getStatusColor()}>{(fleet.battery / 100).toFixed(1)}V</span>
+              </div>
+              <div className="flex-1" />
+              <div className="flex items-center gap-1 text-gray-500">
+                <Navigation2 className="h-3 w-3" />
+                <span>{fleet.speed.toFixed(1)}kn</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div>{fleet.speed} knots</div>
-        <div className="col-span-2 text-xs text-gray-500">
-          Last Update: {format(new Date(fleet.updated), "HH:mm dd/MM")}
-        </div>
-      </div>
-    </motion.button>
-  );
-});
+      </button>
+    );
+  }
+);
+
+VesselItem.displayName = "VesselItem";
