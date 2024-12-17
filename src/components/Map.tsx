@@ -1,7 +1,14 @@
 import { useRef, useState, useCallback, useMemo } from "react";
 import Map, { NavigationControl, Source, Layer, MapRef } from "react-map-gl";
 import { motion, AnimatePresence } from "framer-motion";
-import { Anchor, ChevronDown, ChevronUp, Info, Maximize2 } from "lucide-react";
+import {
+  Anchor,
+  ChevronDown,
+  ChevronUp,
+  Info,
+  Maximize2,
+  Clock,
+} from "lucide-react";
 import { differenceInMinutes } from "date-fns";
 
 import { useFleetStore } from "../store/fleetStore";
@@ -18,7 +25,10 @@ interface VesselMapProps {}
 const timeRanges = [
   { label: "1D", days: 1 },
   { label: "3D", days: 3 },
+  { label: "5D", days: 5 },
   { label: "7D", days: 7 },
+  { label: "15D", days: 15 },
+  { label: "30D", days: 30 },
 ];
 
 export function VesselMap() {
@@ -39,6 +49,8 @@ export function VesselMap() {
     outdated: true,
     normal: true,
   });
+  const [selectedTimeRange, setSelectedTimeRange] = useState(timeRanges[0]);
+  const [isTimeDropdownOpen, setIsTimeDropdownOpen] = useState(false);
 
   const selectedFleet = useMemo(
     () => fleets?.find((f) => f.id === selectedFleetId),
@@ -119,32 +131,40 @@ export function VesselMap() {
     if (vessels.length === 0) return null;
 
     return (
-      <div className="py-2">
+      <div className="border-b border-gray-200 dark:border-gray-700/50">
         <button
           onClick={() => toggleGroup(type)}
-          className="w-full flex items-center justify-between px-4 py-2
-                   hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+          className={`w-full flex items-center justify-between p-4
+                   bg-gradient-to-r from-gray-50/50 dark:from-gray-800/30 to-transparent
+                   border-l-[3px] transition-all duration-200
+                   ${
+                     type === "critical"
+                       ? "border-red-500/50 hover:border-red-500"
+                       : type === "outdated"
+                       ? "border-amber-500/50 hover:border-amber-500"
+                       : "border-emerald-500/50 hover:border-emerald-500"
+                   }`}
         >
           <div className="flex items-center gap-3">
-            <span className={`h-2 w-2 rounded-full ${
-              type === "critical"
-                ? "bg-red-500"
-                : type === "outdated"
-                ? "bg-amber-500"
-                : "bg-emerald-500"
-            }`} />
-            <span className="font-medium text-gray-900 dark:text-white">
-              {title}
-            </span>
-            <span className={`text-xs px-2 py-0.5 rounded-full
-                          ${type === "critical" 
-                            ? "bg-red-50 text-red-600 dark:bg-red-500/10"
-                            : type === "outdated"
-                            ? "bg-amber-50 text-amber-600 dark:bg-amber-500/10"
-                            : "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10"
-                          }`}>
-              {vessels.length}
-            </span>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-gray-900 dark:text-white">
+                  {title}
+                </span>
+                <span
+                  className={`text-xs px-2 py-0.5 rounded-full border
+                              ${
+                                type === "critical"
+                                  ? "bg-red-50 border-red-100 text-red-600 dark:bg-red-500/10 dark:border-red-500/20"
+                                  : type === "outdated"
+                                  ? "bg-amber-50 border-amber-100 text-amber-600 dark:bg-amber-500/10 dark:border-amber-500/20"
+                                  : "bg-emerald-50 border-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:border-emerald-500/20"
+                              }`}
+                >
+                  {vessels.length}
+                </span>
+              </div>
+            </div>
           </div>
           {expandedGroups[type] ? (
             <ChevronUp className="h-4 w-4 text-gray-400" />
@@ -160,28 +180,26 @@ export function VesselMap() {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="overflow-hidden"
+              className="overflow-hidden divide-y divide-gray-100 dark:divide-gray-800"
             >
-              <div className="py-1">
-                {vessels.map((fleet) => (
-                  <VesselItem
-                    key={fleet.id}
-                    fleet={fleet}
-                    onClick={(f) => {
-                      setSelectedFleetId(f.id);
-                      setIsDropdownOpen(false);
-                      if (mapRef.current) {
-                        mapRef.current.flyTo({
-                          center: [f.lng, f.lat],
-                          zoom: 14,
-                          duration: 2000,
-                        });
-                      }
-                    }}
-                    isSelected={fleet.id === selectedFleetId}
-                  />
-                ))}
-              </div>
+              {vessels.map((fleet) => (
+                <VesselItem
+                  key={fleet.id}
+                  fleet={fleet}
+                  onClick={(f) => {
+                    setSelectedFleetId(f.id);
+                    setIsDropdownOpen(false);
+                    if (mapRef.current) {
+                      mapRef.current.flyTo({
+                        center: [f.lng, f.lat],
+                        zoom: 14,
+                        duration: 2000,
+                      });
+                    }
+                  }}
+                  isSelected={fleet.id === selectedFleetId}
+                />
+              ))}
             </motion.div>
           )}
         </AnimatePresence>
@@ -247,7 +265,7 @@ export function VesselMap() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center gap-2 px-4 text-white font-medium border-r border-white/10
+                  className="flex items-center gap-2 px-4 text-white font-medium  border-white/10
                            hover:bg-white/5 transition-all duration-300"
                 >
                   <div className="p-1.5 bg-white/10 rounded-lg backdrop-blur-sm">
@@ -260,30 +278,56 @@ export function VesselMap() {
                   />
                 </motion.button>
 
-                {/* Time range selector */}
-                <div className="flex items-stretch border-r border-white/10">
-                  {timeRanges.map((range) => (
-                    <motion.button
-                      key={range.days}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => handlePresetClick(range.days)}
-                      className={`px-4 flex items-center text-sm font-medium transition-all
-                                ${
-                                  dateRange?.start &&
-                                  differenceInMinutes(
-                                    dateRange.end,
-                                    dateRange.start
-                                  ) /
-                                    (24 * 60) ===
-                                    range.days
-                                    ? "bg-white/20 text-white shadow-inner"
-                                    : "text-white/90 hover:bg-white/5"
-                                }`}
+                {/* Time Range Dropdown */}
+                <div className="relative inline-block">
+                  <button
+                    onClick={() => setIsTimeDropdownOpen(!isTimeDropdownOpen)}
+                    className="flex items-center gap-2 px-4 py-1.5 text-white font-medium
+                             hover:bg-white/5 transition-all duration-300"
+                  >
+                    <div className="p-1.5 bg-white/10 rounded-lg backdrop-blur-sm flex items-center justify-center">
+                      <Clock className="h-4 w-4" />
+                    </div>
+                    <span className="min-w-[2.5rem]">
+                      {selectedTimeRange.label}
+                    </span>
+                    {isTimeDropdownOpen ? (
+                      <ChevronUp className="h-4 w-4 text-white/70" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 text-white/70" />
+                    )}
+                  </button>
+
+                  {isTimeDropdownOpen && (
+                    <div
+                      className="absolute right-0 mt-2 w-[140px] 
+                                 bg-white dark:bg-gray-800 
+                                 rounded-lg border border-gray-200 dark:border-gray-700 
+                                 shadow-lg overflow-hidden z-10"
                     >
-                      {range.label}
-                    </motion.button>
-                  ))}
+                      <div className="p-2">
+                        {timeRanges.map((range) => (
+                          <button
+                            key={range.label}
+                            onClick={() => {
+                              setSelectedTimeRange(range);
+                              setIsTimeDropdownOpen(false);
+                              handlePresetClick(range.days);
+                            }}
+                            className={`w-full px-3 py-2 text-sm text-left rounded-md
+                                       transition-colors
+                                       ${
+                                         selectedTimeRange.label === range.label
+                                           ? "bg-primary/5 dark:bg-primary/10 text-primary"
+                                           : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                                       }`}
+                          >
+                            <span className={selectedTimeRange.label === range.label ? "font-medium" : "font-normal"}>{range.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Info button */}
@@ -325,17 +369,24 @@ export function VesselMap() {
           {/* Vessel selection dropdown */}
           {isDropdownOpen && (
             <div
-              className="absolute top-full right-0 mt-2 w-[400px] bg-white/90 dark:bg-gray-900/90 
-                       rounded-xl shadow-lg backdrop-blur-sm border border-gray-100 dark:border-gray-800
-                       overflow-hidden"
+              className="absolute top-full right-0 mt-2 w-[400px] 
+                       bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl
+                       rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50
+                       overflow-hidden transform-gpu animate-in fade-in slide-in-from-top-2 duration-200"
             >
-              <div className="p-4 border-b border-gray-100 dark:border-gray-800">
-                <h3 className="text-base font-medium text-gray-900 dark:text-white">
-                  Select Vessel ({fleets?.length})
+              <div
+                className="p-4 border-b border-gray-200 dark:border-gray-700/50
+                           bg-gradient-to-b from-gray-50 dark:from-gray-800/50 to-transparent"
+              >
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                  Select Vessel
                 </h3>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {fleets?.length} vessels in total
+                </p>
               </div>
 
-              <div className="max-h-[65vh] overflow-y-auto divide-y divide-gray-100 dark:divide-gray-800">
+              <div className="max-h-[65vh] overflow-y-auto">
                 {renderVesselGroup(
                   "Critical Status",
                   groupedVessels.critical,
@@ -363,7 +414,7 @@ export function VesselMap() {
             fleet={fleet}
             isSelected={selectedFleetId === fleet.id}
             onClick={() => handleMarkerClick(fleet)}
-            isLoading={isLoading}
+            isLoading={isLoading || isPointsLoading}
           />
         ))}
 

@@ -1,6 +1,6 @@
-import { memo, useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { differenceInMinutes, formatDistanceToNow } from "date-fns";
+import { differenceInHours, formatDistanceToNow } from "date-fns";
 import {
   Battery,
   Navigation2,
@@ -9,6 +9,7 @@ import {
   Clock,
   Waves,
   Compass,
+  Gauge,
 } from "lucide-react";
 import { Fleet } from "../types/fleet";
 
@@ -18,69 +19,90 @@ interface VesselItemProps {
   isSelected: boolean;
 }
 
-export const VesselItem = memo(
-  ({ fleet, onClick, isSelected }: VesselItemProps) => {
-    const minutesSinceUpdate = differenceInMinutes(
-      new Date(),
-      new Date(fleet.updated)
-    );
+export function VesselItem({
+  fleet,
+  onClick,
+  isSelected,
+}: {
+  fleet: Fleet;
+  onClick: (fleet: Fleet) => void;
+  isSelected: boolean;
+}) {
+  const lastUpdate = fleet.updated ? new Date(fleet.updated) : null;
+  const timeDifference = lastUpdate
+    ? formatDistanceToNow(lastUpdate, { addSuffix: true })
+    : "No data";
 
-    const isOnline = minutesSinceUpdate < 30;
-
-    const getStatusColor = () => {
-      if (!isOnline) return "text-amber-500";
-      if (fleet.battery <= 1150) return "text-red-500";
-      return "text-emerald-500";
-    };
-
-    return (
-      <button
-        onClick={() => onClick(fleet)}
-        className={`w-full px-4 py-3 text-left transition-colors
-          ${isSelected 
-            ? "bg-sky-50 dark:bg-sky-900/20 border-l-2 border-sky-500" 
-            : "hover:bg-gray-50 dark:hover:bg-gray-800/50 border-l-2 border-transparent"}`}
-      >
-        <div className="flex items-start gap-2.5">
-          {/* Status Dot */}
-          <span className={`mt-2 h-1.5 w-1.5 shrink-0 rounded-full ${
-            !isOnline
-              ? "bg-amber-500"
-              : fleet.battery <= 1150
-              ? "bg-red-500"
-              : "bg-emerald-500"
-          }`} />
-
-          {/* Main Content */}
-          <div className="min-w-0 flex-1">
-            {/* Top Row: Name and Last Update */}
-            <div className="flex items-center justify-between">
-              <span className="font-medium text-gray-900 dark:text-white truncate pr-4">
-                {fleet.name}
-              </span>
-              <div className="flex items-center gap-1 text-xs text-gray-500 shrink-0">
-                <Clock className="h-3 w-3" />
-                <span>{formatDistanceToNow(new Date(fleet.updated), { addSuffix: true })}</span>
-              </div>
+  return (
+    <button
+      onClick={() => onClick(fleet)}
+      className={`w-full p-4 text-left transition-all duration-200
+                ${
+                  isSelected
+                    ? "bg-blue-50/80 dark:bg-blue-500/10 border-l-[3px] border-l-blue-500"
+                    : "hover:bg-gray-50/80 dark:hover:bg-gray-800/50 border-l-[3px] border-transparent"
+                }
+                group relative overflow-hidden`}
+    >
+      {/* Premium hover effect overlay */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent 
+                    translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+      
+      <div className="relative">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className={`w-2.5 h-2.5 rounded-full
+                           ${getStatusColor(fleet)}
+                           animate-pulse`} />
+              <div className={`absolute inset-0 w-2.5 h-2.5 rounded-full
+                           ${getStatusRingColor(fleet)}
+                           animate-ping opacity-75`} />
             </div>
+            <h3 className="font-medium text-gray-900 dark:text-white tracking-tight">
+              {fleet.name}
+            </h3>
+          </div>
+          <span className="text-xs text-gray-500 dark:text-gray-400 tabular-nums">
+            {timeDifference}
+          </span>
+        </div>
 
-            {/* Bottom Row: Battery and Speed */}
-            <div className="mt-1.5 flex items-center gap-3 text-xs font-medium">
-              <div className="flex items-center gap-1">
-                <Battery className={`h-3 w-3 ${getStatusColor()}`} />
-                <span className={getStatusColor()}>{(fleet.battery / 100).toFixed(1)}V</span>
-              </div>
-              <div className="flex-1" />
-              <div className="flex items-center gap-1 text-gray-500">
-                <Navigation2 className="h-3 w-3" />
-                <span>{fleet.speed.toFixed(1)}kn</span>
-              </div>
-            </div>
+        <div className="flex items-center gap-6 ml-5">
+          <div className="flex items-center gap-2">
+            <Battery className="w-4 h-4 text-gray-400" />
+            <span className="text-sm text-gray-600 dark:text-gray-300 tabular-nums">
+              {fleet.battery ? `${(fleet.battery / 100).toFixed(1)}V` : "N/A"}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Gauge className="w-4 h-4 text-gray-400" />
+            <span className="text-sm text-gray-600 dark:text-gray-300 tabular-nums">
+              {typeof fleet.speed === 'number' ? `${fleet.speed.toFixed(1)} kn` : "0.0 kn"}
+            </span>
           </div>
         </div>
-      </button>
-    );
-  }
-);
+      </div>
+    </button>
+  );
+}
 
-VesselItem.displayName = "VesselItem";
+function getStatusColor(fleet: Fleet) {
+  if (!fleet.updated) return "bg-gray-400";
+  const lastUpdate = new Date(fleet.updated);
+  const hoursDiff = differenceInHours(new Date(), lastUpdate);
+
+  if (hoursDiff > 24) return "bg-red-500";
+  if (hoursDiff > 12) return "bg-amber-500";
+  return "bg-emerald-500";
+}
+
+function getStatusRingColor(fleet: Fleet) {
+  if (!fleet.updated) return "bg-gray-400";
+  const lastUpdate = new Date(fleet.updated);
+  const hoursDiff = differenceInHours(new Date(), lastUpdate);
+
+  if (hoursDiff > 24) return "bg-red-400";
+  if (hoursDiff > 12) return "bg-amber-400";
+  return "bg-emerald-400";
+}
