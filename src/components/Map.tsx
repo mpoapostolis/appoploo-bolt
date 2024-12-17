@@ -401,7 +401,7 @@ export function VesselMap() {
           {/* Vessel selection dropdown */}
           {isDropdownOpen && (
             <div
-              className="absolute top-full right-0 mt-2 w-[400px] 
+              className="absolute top-full right-0 mt-2 w-[310px] lg:w-[400px] 
                        bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl
                        rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50
                        overflow-hidden transform-gpu animate-in fade-in slide-in-from-top-2 duration-200"

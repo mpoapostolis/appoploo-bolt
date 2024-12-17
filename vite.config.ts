@@ -3,16 +3,22 @@ import react from "@vitejs/plugin-react";
 import viteCompression from "vite-plugin-compression";
 
 export default defineConfig({
-    server: {
-      proxy: {
-        '/api/checkout-session': {
-          target: 'https://appoploo.vercel.app',
-          // target: 'http://localhost:3000',
-          changeOrigin: true,
-          secure: true
-        }
-      }
+  server: {
+    proxy: {
+      "/api/checkout-session": {
+        target: "https://appoploo.vercel.app",
+        // target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: true,
+      },
+      "/api/notify-purchase": {
+        target: "https://appoploo.vercel.app",
+        // target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: true,
+      },
     },
+  },
   plugins: [
     react(),
     viteCompression({
@@ -41,4 +47,3 @@ export default defineConfig({
     include: ["react", "react-dom", "framer-motion", "mapbox-gl"],
   },
 });
-

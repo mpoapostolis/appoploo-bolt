@@ -1,4 +1,5 @@
-const CACHE_NAME = 'appoploo-bolt-v1';
+const CACHE_VERSION = new Date().getTime(); // Force update on each load
+const CACHE_NAME = `appoploo-bolt-v2-${CACHE_VERSION}`;
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -17,15 +18,16 @@ const STATIC_ASSETS = [
   '/ios/1024.png'
 ];
 
-const DYNAMIC_CACHE = 'dynamic-v1';
+const DYNAMIC_CACHE = `dynamic-v2-${CACHE_VERSION}`;
 const OFFLINE_PAGE = '/offline.html';
+const UPDATE_INTERVAL = 1000 * 60 * 5; // Check for updates every 5 minutes
 
 // Install service worker
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(STATIC_ASSETS))
-      .then(() => self.skipWaiting())
+      .then(() => self.skipWaiting()) // Force activation
   );
 });
 
@@ -33,7 +35,8 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     Promise.all([
-      self.clients.claim(),
+      self.clients.claim(), // Take control immediately
+      // Clear all old caches
       caches.keys().then(cacheNames => {
         return Promise.all(
           cacheNames
@@ -45,65 +48,40 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Fetch resources
+// Force periodic updates
+setInterval(() => {
+  self.registration.update();
+}, UPDATE_INTERVAL);
+
+// Fetch resources with network-first strategy
 self.addEventListener('fetch', event => {
   // Skip cross-origin requests
   if (!event.request.url.startsWith(self.location.origin)) {
     return;
   }
 
-  // Handle API requests
-  if (event.request.url.includes('/api/')) {
-    event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          if (!response || response.status !== 200) {
-            return response;
-          }
-          
-          const responseToCache = response.clone();
-          caches.open(DYNAMIC_CACHE)
-            .then(cache => {
-              cache.put(event.request, responseToCache);
-            });
-          
-          return response;
-        })
-        .catch(() => {
-          return caches.match(event.request);
-        })
-    );
-    return;
-  }
-
-  // Handle static assets
+  // Network-first strategy
   event.respondWith(
-    caches.match(event.request)
+    fetch(event.request)
       .then(response => {
-        if (response) {
-          return response;
-        }
-
-        return fetch(event.request)
-          .then(response => {
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
+        // Cache the fresh response
+        const freshResponse = response.clone();
+        caches.open(DYNAMIC_CACHE)
+          .then(cache => cache.put(event.request, freshResponse));
+        return response;
+      })
+      .catch(() => {
+        // Fallback to cache if network fails
+        return caches.match(event.request)
+          .then(cachedResponse => {
+            if (cachedResponse) {
+              return cachedResponse;
             }
-
-            const responseToCache = response.clone();
-            caches.open(CACHE_NAME)
-              .then(cache => {
-                cache.put(event.request, responseToCache);
-              });
-
-            return response;
-          })
-          .catch(() => {
             // Return offline page for navigation requests
             if (event.request.mode === 'navigate') {
               return caches.match(OFFLINE_PAGE);
             }
-            return null;
+            return Response.error();
           });
       })
   );
