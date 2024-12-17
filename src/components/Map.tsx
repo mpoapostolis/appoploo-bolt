@@ -255,10 +255,10 @@ export function VesselMap() {
             : "mapbox://styles/mapbox/streets-v12"
         }
       >
-        <NavigationControl position="bottom-right" />
+        {/* <NavigationControl position="bottom-right" /> */}
 
         {/* Show all fleets button - Top left */}
-        <div className="absolute top-4 left-4 z-10">
+        <div className="absolute bottom-4 right-4 z-10">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -303,7 +303,7 @@ export function VesselMap() {
                 </motion.button>
 
                 {/* Time Range Dropdown */}
-                <div className="relative inline-block">
+                <div className="relative border-l border-white/10 inline-block">
                   <button
                     onClick={() => setIsTimeDropdownOpen(!isTimeDropdownOpen)}
                     className="flex items-center gap-2 px-4 py-1.5 text-white font-medium
@@ -370,7 +370,7 @@ export function VesselMap() {
                   }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setShowVesselDetails(true)}
-                  className="flex items-center px-4 text-white/90 transition-all duration-300"
+                  className="flex border-l border-white/10 items-center px-4 text-white/90 transition-all duration-300"
                 >
                   <Info className="h-5 w-5" />
                 </motion.button>
