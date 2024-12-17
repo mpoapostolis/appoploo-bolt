@@ -45,19 +45,25 @@ export function VesselItem({
                 group relative overflow-hidden`}
     >
       {/* Premium hover effect overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent 
-                    translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
-      
+      <div
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent 
+                    translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"
+      />
+
       <div className="relative">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className={`w-2.5 h-2.5 rounded-full
+              <div
+                className={`w-2.5 h-2.5 rounded-full
                            ${getStatusColor(fleet)}
-                           animate-pulse`} />
-              <div className={`absolute inset-0 w-2.5 h-2.5 rounded-full
+                           animate-pulse`}
+              />
+              <div
+                className={`absolute inset-0 w-2.5 h-2.5 rounded-full
                            ${getStatusRingColor(fleet)}
-                           animate-ping opacity-75`} />
+                           animate-ping opacity-75`}
+              />
             </div>
             <h3 className="font-medium text-gray-900 dark:text-white tracking-tight">
               {fleet.name}
@@ -72,13 +78,15 @@ export function VesselItem({
           <div className="flex items-center gap-2">
             <Battery className="w-4 h-4 text-gray-400" />
             <span className="text-sm text-gray-600 dark:text-gray-300 tabular-nums">
-              {fleet.battery ? `${(fleet.battery / 100).toFixed(1)}V` : "N/A"}
+              {fleet.battery ? `${(fleet.battery / 1000).toFixed(2)}V` : "N/A"}
             </span>
           </div>
           <div className="flex items-center gap-2">
             <Gauge className="w-4 h-4 text-gray-400" />
             <span className="text-sm text-gray-600 dark:text-gray-300 tabular-nums">
-              {typeof fleet.speed === 'number' ? `${fleet.speed.toFixed(1)} kn` : "0.0 kn"}
+              {typeof fleet.speed === "number"
+                ? `${fleet.speed.toFixed(1)} kn`
+                : "0.0 kn"}
             </span>
           </div>
         </div>

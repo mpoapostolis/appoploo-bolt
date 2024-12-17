@@ -1,16 +1,19 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { X } from 'lucide-react';
-import toast from 'react-hot-toast';
-import { pb } from '../lib/pocketbase';
-import { useAuth } from '../contexts/AuthContext';
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { X } from "lucide-react";
+import toast from "react-hot-toast";
+import { pb } from "../lib/pocketbase";
+import { useAuth } from "../contexts/AuthContext";
 
 interface OrderTrackerModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function OrderTrackerModal({ isOpen, onClose }: OrderTrackerModalProps) {
+export default function OrderTrackerModal({
+  isOpen,
+  onClose,
+}: OrderTrackerModalProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -20,19 +23,35 @@ export default function OrderTrackerModal({ isOpen, onClose }: OrderTrackerModal
       const formData = new FormData(e.target as HTMLFormElement);
       const data = {
         user_id: pb.authStore.model?.id,
-        quantity: parseInt(formData.get('quantity') as string),
-        postal_code: formData.get('postalCode'),
-        address: formData.get('address'),
-        phone: formData.get('phone'),
-        additional: formData.get('message')
+        quantity: parseInt(formData.get("quantity") as string),
+        postal_code: formData.get("postalCode"),
+        address: formData.get("address"),
+        phone: formData.get("phone"),
+        additional: formData.get("message"),
       };
-      
-      await pb.collection('orders').create(data);
-      toast.success('Order request sent successfully!');
+
+      // Create the order
+      await pb.collection("orders").create(data);
+
+      // Notify purchase
+      await fetch("/api/notify-purchase", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          customerEmail: pb.authStore.model?.email,
+          vesselNumbers: parseInt(formData.get("quantity") as string), // Using order ID as vessel number
+          planId: "basic_plan",
+          msg: formData.get("message"),
+        }),
+      });
+
+      toast.success("Order request sent successfully!");
       onClose();
     } catch (error) {
-      console.error('Error submitting order:', error);
-      toast.error('Failed to submit order request');
+      console.error("Error submitting order:", error);
+      toast.error("Failed to submit order request");
     } finally {
       setIsLoading(false);
     }
@@ -42,7 +61,10 @@ export default function OrderTrackerModal({ isOpen, onClose }: OrderTrackerModal
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -136,7 +158,7 @@ export default function OrderTrackerModal({ isOpen, onClose }: OrderTrackerModal
             className="w-full py-2.5 px-4 bg-gradient-to-br from-sky-500 to-blue-600 
                      text-white font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
           >
-            {isLoading ? 'Submitting...' : 'Submit Order Request'}
+            {isLoading ? "Submitting..." : "Submit Order Request"}
           </button>
         </form>
       </motion.div>
