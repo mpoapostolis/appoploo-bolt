@@ -35,7 +35,7 @@ const timeRanges = [
 export function VesselMap() {
   const mapRef = useRef<MapRef | null>(null);
   const {
-    isDarkTheme,
+    isDarkMode,
     selectedFleetId,
     setSelectedFleetId,
     dateRange,
@@ -250,7 +250,7 @@ export function VesselMap() {
           zoom: 7,
         }}
         mapStyle={
-          isDarkTheme
+          isDarkMode
             ? "mapbox://styles/mapbox/dark-v11"
             : "mapbox://styles/mapbox/streets-v12"
         }
@@ -469,7 +469,7 @@ export function VesselMap() {
               id="route"
               type="line"
               paint={{
-                "line-color": isDarkTheme ? "#3b82f6" : "#2563eb",
+                "line-color": isDarkMode ? "#3b82f6" : "#2563eb",
                 "line-width": 2,
                 "line-opacity": 0.8,
               }}
