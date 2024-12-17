@@ -1,11 +1,12 @@
-import { memo } from "react";
+import { memo, useState } from "react";
 import { motion } from "framer-motion";
-import { Ship, Battery, Navigation, Clock, AlertTriangle } from "lucide-react";
+import { Ship, Battery, Navigation, Clock, AlertTriangle, Plus } from "lucide-react";
 import { differenceInMinutes, formatDistanceToNow } from "date-fns";
 import { useFleetStore } from "../../store/fleetStore";
 import { useFleets } from "../../hooks/useFleets";
 import FleetFilters from "./FleetFilters";
 import DateRangePicker from "./DateRangePicker";
+import OrderTrackerModal from "../OrderTrackerModal";
 
 export const getUpdateStatus = (lastUpdate: string) => {
   const minutesSinceUpdate = differenceInMinutes(
@@ -162,6 +163,7 @@ export const VesselCard = memo(({ fleet, isSelected, onClick }: any) => {
 export default function VesselList() {
   const { fleets, isLoading } = useFleets();
   const { selectedFleetId, setSelectedFleetId, sortKey } = useFleetStore();
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
 
   const sortedFleets = [...(fleets || [])].sort((a, b) => {
     switch (sortKey) {
@@ -206,6 +208,23 @@ export default function VesselList() {
           />
         ))}
       </div>
+
+      <motion.button
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        onClick={() => setIsOrderModalOpen(true)}
+        className="w-full py-3 px-4 bg-gradient-to-br from-sky-500 to-blue-600 
+                 text-white font-medium rounded-xl hover:opacity-90 transition-opacity
+                 flex items-center justify-center space-x-2 shadow-lg"
+      >
+        <Plus className="h-5 w-5" />
+        <span>Order New Tracker</span>
+      </motion.button>
+
+      <OrderTrackerModal 
+        isOpen={isOrderModalOpen}
+        onClose={() => setIsOrderModalOpen(false)}
+      />
     </div>
   );
 }

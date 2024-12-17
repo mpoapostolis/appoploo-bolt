@@ -1,12 +1,16 @@
-import { Moon, Sun, LogOut, Ship } from 'lucide-react';
+import { Moon, Sun, LogOut, Ship, UserCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useFleetStore } from '../store/fleetStore';
 import NotificationBell from './notifications/NotificationBell';
 import { pb } from '../lib/pocketbase';
 import toast from 'react-hot-toast';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import ProfileModal from './ProfileModal';
 
 export default function Header() {
   const { isDarkMode, toggleDarkMode } = useFleetStore();
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   const handleLogout = () => {
     try {
@@ -46,6 +50,16 @@ export default function Header() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => setIsProfileModalOpen(true)}
+              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700/50 
+                       text-gray-600 dark:text-gray-400 transition-all duration-200"
+            >
+              <UserCircle className="h-5 w-5" />
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={toggleDarkMode}
               className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700/50 
                        text-gray-600 dark:text-gray-400 transition-all duration-200
@@ -70,6 +84,7 @@ export default function Header() {
           </div>
         </div>
       </div>
+      <ProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} />
     </header>
   );
 }
